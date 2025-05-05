@@ -292,164 +292,93 @@ const MarathonCalculator = () => {
   )
 
   return (
-    <Grid 
-      templateColumns={{ base: "1fr", md: "1fr min-content 1fr" }} 
-      gap={0} 
-      width="100%"
-      alignItems="stretch"
-      height="100%"
-    >
-      {/* Form Section */}
-      <GridItem width="100%" height="100%">
-        <Flex direction="column" align="center" width="100%" height="100%">
-          <Box 
-            bg="gray.50" 
-            p={6} 
-            boxShadow="md"
-            border="1px solid"
-            borderColor="gray.200"
-            width="100%"
-            height="100%"
-          >
-            <Stack spacing={6} width="100%">
-              <Grid templateColumns="1fr" gap={6} width="100%">
-                <GridItem>
-                  <FormControl isRequired>
-                    <FormLabel color="black">Target Marathon Time (HH:MM)</FormLabel>
-                    <Input
-                      type="text"
-                      placeholder="04:00"
-                      value={targetTime}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setTargetTime(e.target.value)}
-                      pattern="[0-9]{2}:[0-9]{2}"
+    <Flex direction="column" align="center" justify="center" width="100%" minH="60vh" p={4}>
+      {/* Show form only if not submitted or loading */}
+      {(!hasSubmitted || loading) && (
+        <Box bg="gray.50" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="gray.200" width="100%" maxW="420px" mx="auto">
+          <Stack spacing={6} width="100%">
+            <Grid templateColumns="1fr" gap={6} width="100%">
+              <GridItem>
+                <FormControl isRequired>
+                  <FormLabel color="black">Target Marathon Time (HH:MM)</FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="04:00"
+                    value={targetTime}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setTargetTime(e.target.value)}
+                    pattern="[0-9]{2}:[0-9]{2}"
+                    bg="white"
+                    color="black"
+                    borderColor="gray.300"
+                    _placeholder={{ color: 'gray.500' }}
+                    width="100%"
+                  />
+                </FormControl>
+              </GridItem>
+              <GridItem>
+                <FormControl isRequired>
+                  <FormLabel color="black">Weight (kg)</FormLabel>
+                  <NumberInput min={30} max={150} width="100%">
+                    <NumberInputField
+                      value={weight}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setWeight(e.target.value)}
+                      placeholder="70"
                       bg="white"
                       color="black"
                       borderColor="gray.300"
                       _placeholder={{ color: 'gray.500' }}
                       width="100%"
                     />
-                  </FormControl>
-                </GridItem>
-                <GridItem>
-                  <FormControl isRequired>
-                    <FormLabel color="black">Weight (kg)</FormLabel>
-                    <NumberInput min={30} max={150} width="100%">
-                      <NumberInputField
-                        value={weight}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setWeight(e.target.value)}
-                        placeholder="70"
-                        bg="white"
-                        color="black"
-                        borderColor="gray.300"
-                        _placeholder={{ color: 'gray.500' }}
-                        width="100%"
-                      />
-                    </NumberInput>
-                  </FormControl>
-                </GridItem>
-              </Grid>
-              <Button 
-                colorScheme="blue"
-                size="lg"
-                onClick={calculateGelStrategy}
-                width="100%"
-                alignSelf="center"
-              >
-                Calculate Strategy
-              </Button>
+                  </NumberInput>
+                </FormControl>
+              </GridItem>
+            </Grid>
+            <Button colorScheme="blue" size="lg" onClick={calculateGelStrategy} width="100%" alignSelf="center" isLoading={loading}>
+              Calculate Strategy
+            </Button>
+          </Stack>
+        </Box>
+      )}
+      {/* Show results only after submit and not loading */}
+      {hasSubmitted && !loading && result && (
+        <Box bg="gray.50" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="gray.200" width="100%" maxW="700px" mx="auto" mt={8}>
+          <Stack spacing={8} align="center" width="100%">
+            <WeatherForecast />
+            <ThreeDayOverview />
+            <RaceDayBreakfastSection />
+            <Divider my={6} borderColor="gray.200" />
+            <Alert 
+              status="success" 
+              mb={4} 
+              variant="subtle"
+              borderRadius="md"
+            >
+              <AlertIcon />
+              You will need {result.totalGels} gels in total ({result.regularGels} regular GEL 100 and{' '}
+              {result.caffeineGels} CAF 100)
+            </Alert>
+            <Text fontSize="lg" mb={2} color="black">
+              Recommended hydration: {result.hydrationPerHour}ml per hour
+            </Text>
+            <Divider my={4} borderColor="gray.200" />
+            <Text fontSize="lg" fontWeight="bold" mb={2} color="black">
+              Gel Timeline:
+            </Text>
+            <Stack spacing={2}>
+              {result.timeline.map((time, index) => (
+                <Text 
+                  key={index} 
+                  color="black" 
+                  fontFamily="'Courier Prime', 'Courier New', monospace"
+                >
+                  {time}
+                </Text>
+              ))}
             </Stack>
-          </Box>
-        </Flex>
-      </GridItem>
-
-      {/* Vertical Divider */}
-      <GridItem display={{ base: 'none', md: 'block' }} width="100%" height="100%">
-        <Box height="100vh" width="2px" bg="gray.300" mx={0} my={0} borderRadius="full" />
-      </GridItem>
-
-      {/* Results Section */}
-      <GridItem width="100%" height="100%">
-        <Flex direction="column" align="center" width="100%" height="100%">
-          <Box 
-            bg="gray.50" 
-            p={6} 
-            boxShadow="md"
-            border="1px solid"
-            borderColor="gray.200"
-            width="100%"
-            height="100%"
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="flex-start"
-          >
-            {!hasSubmitted && (
-              <Center flexDirection="column" width="100%" height="100%" minH="300px">
-                <Text mb={4} color="gray.500" fontWeight="medium">enter info to see results</Text>
-                <Spinner size="lg" color="blue.400" thickness="4px" speed="0.8s" />
-              </Center>
-            )}
-            {hasSubmitted && loading && (
-              <Center flexDirection="column" width="100%" height="100%" minH="300px">
-                <Spinner size="lg" color="blue.400" thickness="4px" speed="0.8s" />
-              </Center>
-            )}
-            {hasSubmitted && !loading && result && (
-              <Stack spacing={6} width="100%">
-                <ThreeDayOverview />
-                <RaceDayBreakfastSection />
-                <Divider my={6} borderColor="gray.200" />
-                <Stack direction={{ base: 'column', md: 'row' }} spacing={8} align="flex-start" width="100%">
-                  <Box 
-                    bg="gray.50" 
-                    p={6} 
-                    borderRadius="lg" 
-                    boxShadow="md"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    height="100%"
-                    flex="1"
-                    minW={{ base: '0', md: '350px' }}
-                  >
-                    <Stack spacing={6}>
-                      <Alert 
-                        status="success" 
-                        mb={4} 
-                        variant="subtle"
-                        borderRadius="md"
-                      >
-                        <AlertIcon />
-                        You will need {result.totalGels} gels in total ({result.regularGels} regular GEL 100 and{' '}
-                        {result.caffeineGels} CAF 100)
-                      </Alert>
-                      <Text fontSize="lg" mb={2} color="black">
-                        Recommended hydration: {result.hydrationPerHour}ml per hour
-                      </Text>
-                      <Divider my={4} borderColor="gray.200" />
-                      <Text fontSize="lg" fontWeight="bold" mb={2} color="black">
-                        Gel Timeline:
-                      </Text>
-                      <Stack spacing={2}>
-                        {result.timeline.map((time, index) => (
-                          <Text 
-                            key={index} 
-                            color="black" 
-                            fontFamily="'Courier Prime', 'Courier New', monospace"
-                          >
-                            {time}
-                          </Text>
-                        ))}
-                      </Stack>
-                    </Stack>
-                  </Box>
-                  <WeatherForecast />
-                </Stack>
-              </Stack>
-            )}
-          </Box>
-        </Flex>
-      </GridItem>
-    </Grid>
+          </Stack>
+        </Box>
+      )}
+    </Flex>
   )
 }
 

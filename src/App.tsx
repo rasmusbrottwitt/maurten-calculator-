@@ -54,7 +54,7 @@ function App() {
               color="black"
               fontWeight="bold"
             >
-              LØBEREN x BAMSE
+              LØBEREN x MAURTEN
             </Text>
             <Heading 
               as="h1" 
@@ -62,7 +62,7 @@ function App() {
               color="black" 
               fontFamily="'Courier Prime', 'Courier New', monospace"
             >
-              MAURTEN Marathon Gel Calculator
+              Carb Calculator
             </Heading>
           </Stack>
           <Box width="100vw" maxWidth="100vw">
