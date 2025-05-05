@@ -154,15 +154,24 @@ const MarathonCalculator = () => {
       'Alcohol',
       'Large amounts of raw vegetables',
     ];
+    const ExpoBox = ({ children }: { children: React.ReactNode }) => (
+      <Box bg="red.50" borderLeft="4px solid #E53E3E" p={3} my={2} borderRadius="md">
+        {children}
+      </Box>
+    );
     return (
       <Box mt={8} color="black">
         <Text fontSize="xl" fontWeight="bold" mb={4}>
           3-Day Race Week Overview
         </Text>
         <Stack spacing={6}>
-          {/* Friday */}
+          {/* Thursday */}
           <Box>
-            <Text fontSize="lg" fontWeight="semibold" mb={2}>Friday (3 days out)</Text>
+            <Text fontSize="lg" fontWeight="semibold" mb={2}>Thursday (4 days out)</Text>
+            <ExpoBox>
+              <Text fontWeight="bold">LØBEREN EXPO OPENS: 14:00 – 19:00</Text>
+              <Text>Kick off the Expo! Be the first to see the world's biggest brands, their newest products, and meet running experts. Get the official race newspaper and limited-edition merchandise.</Text>
+            </ExpoBox>
             <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
             <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
             <Text mb={1}>• <b>Include Maurten:</b> Start sipping Maurten Drink Mix 160/320 with meals and snacks</Text>
@@ -170,15 +179,37 @@ const MarathonCalculator = () => {
             <Text mb={1}>• <b>Shakeout run:</b> Easy 20–40 min run in the morning or midday</Text>
             <Text mb={1}>• <b>Sleep:</b> Aim for 8+ hours, keep a regular bedtime</Text>
           </Box>
-          {/* Saturday */}
+          {/* Friday */}
           <Box>
-            <Text fontSize="lg" fontWeight="semibold" mb={2}>Saturday (2 days out)</Text>
+            <Text fontSize="lg" fontWeight="semibold" mb={2}>Friday (3 days out)</Text>
+            <ExpoBox>
+              <Text fontWeight="bold">LØBEREN EXPO OPENS: 12:00 – 19:00</Text>
+              <Text>Experience the huge running universe. Merch. Newspaper. The biggest and best brands. The party continues.</Text>
+              <Text fontWeight="bold" mt={2}>SHAKEOUT RUN & CPH MARATHON: 17:00–18:00</Text>
+              <Text>Everyone is welcome! Get a unique insight into the course, the thoughts behind it, and cool spots along the route. Different pace groups, organized with Sparta. After the run: alcohol-free beer from Erdinger, sausage rolls, and Red Bull. Free, but requires sign up in the Facebook event.</Text>
+            </ExpoBox>
             <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
             <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
             <Text mb={1}>• <b>Include Maurten:</b> Use Maurten Drink Mix with snacks, and consider a Maurten GEL 100 after your shakeout run</Text>
             <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
-            <Text mb={1}>• <b>Shakeout run:</b> Easy 15–30 min run, ideally in the morning</Text>
+            <Text mb={1}>• <b>Shakeout run:</b> Easy 15–30 min run, ideally in the morning or join the Expo shakeout at 17:00</Text>
             <Text mb={1}>• <b>Sleep:</b> Prioritize 8+ hours, wind down early</Text>
+          </Box>
+          {/* Saturday */}
+          <Box>
+            <Text fontSize="lg" fontWeight="semibold" mb={2}>Saturday (2 days out)</Text>
+            <ExpoBox>
+              <Text fontWeight="bold">LØBEREN EXPO OPENS: 10:00 – 19:00</Text>
+              <Text>Come and experience the huge running universe!</Text>
+              <Text fontWeight="bold" mt={2}>FINAL BIB PICK-UP: 17:00 – 19:00</Text>
+              <Text>The Expo closes at 19:00. If you haven't picked up your race bib, make sure to do so!</Text>
+            </ExpoBox>
+            <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
+            <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
+            <Text mb={1}>• <b>Include Maurten:</b> Use Maurten Drink Mix and snacks, keep fueling up</Text>
+            <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
+            <Text mb={1}>• <b>Shakeout run:</b> Optional 10–20 min jog, keep it easy</Text>
+            <Text mb={1}>• <b>Sleep:</b> Prioritize 8+ hours, get to bed early</Text>
           </Box>
           {/* Sunday */}
           <Box>
