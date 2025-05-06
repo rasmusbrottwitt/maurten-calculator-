@@ -30,8 +30,10 @@ import {
   SliderFilledTrack,
   SliderThumb,
   Tooltip,
+  Spinner,
 } from '@chakra-ui/react'
 import { CheckCircleIcon } from '@chakra-ui/icons'
+import { keyframes } from '@emotion/react'
 
 interface CalculationResult {
   totalGels: number
@@ -71,6 +73,13 @@ const coffeeShops = [
   'Sonny',
   'April Coffee',
 ]
+
+// Animation keyframes for math symbols
+const float = keyframes`
+  0% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-10px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+`
 
 const MarathonCalculator = () => {
   const [targetTime, setTargetTime] = useState('')
@@ -323,10 +332,39 @@ const MarathonCalculator = () => {
     </Box>
   )
 
+  // Animated loading component
+  const MathLoadingAnimation = () => (
+    <Flex direction="column" align="center" justify="center" minH="300px" p={8}>
+      <Text fontSize="5xl" mb={2}>
+        💻
+      </Text>
+      <Flex mb={4} gap={2}>
+        <Text fontSize="2xl" color="blue.500" fontWeight="bold" animation={`${float} 1.2s infinite`}>
+          ∑
+        </Text>
+        <Text fontSize="2xl" color="green.500" fontWeight="bold" animation={`${float} 1.3s infinite 0.2s`}>
+          π
+        </Text>
+        <Text fontSize="2xl" color="red.500" fontWeight="bold" animation={`${float} 1.1s infinite 0.4s`}>
+          √
+        </Text>
+        <Text fontSize="2xl" color="orange.500" fontWeight="bold" animation={`${float} 1.4s infinite 0.6s`}>
+          ∞
+        </Text>
+      </Flex>
+      <Text fontSize="lg" mb={4} color="gray.600" fontWeight="bold">
+        Crunching the numbers...
+      </Text>
+      <Spinner size="xl" color="blue.400" thickness="4px" speed="0.8s" />
+    </Flex>
+  )
+
   return (
     <Flex direction="column" align="center" justify="center" width="100%" minH="60vh" p={4} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
-      {/* Show form only if not submitted or loading */}
-      {(!hasSubmitted || loading) && (
+      {/* Show animation while loading */}
+      {loading && <MathLoadingAnimation />}
+      {/* Show form only if not submitted and not loading */}
+      {(!hasSubmitted && !loading) && (
         <Box bg="gray.50" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="gray.200" width="100%" maxW="420px" mx="auto" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
           <WeatherExplanation />
           <Stack spacing={6} width="100%">
