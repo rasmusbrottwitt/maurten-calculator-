@@ -48,21 +48,13 @@ function App() {
             />
           </Box>
           <Stack spacing={4} textAlign="center" width="100vw" maxWidth="100vw">
-            <Text 
-              fontSize="3xl" 
-              letterSpacing="wider" 
-              color="black"
-              fontWeight="bold"
-            >
-              LØBEREN x MAURTEN
-            </Text>
             <Heading 
               as="h1" 
               size="xl" 
               color="black" 
-              fontFamily="'Courier Prime', 'Courier New', monospace"
+              fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
             >
-              Carb Calculator
+              Raceweek Calculator
             </Heading>
           </Stack>
           <Box width="100vw" maxWidth="100vw">

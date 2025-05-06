@@ -24,6 +24,12 @@ import {
   ListItem,
   ListIcon,
   Flex,
+  Select,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  Tooltip,
 } from '@chakra-ui/react'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 
@@ -53,9 +59,25 @@ const weather = {
   sunset: '9:07 pm',
 };
 
+const coffeeShops = [
+  'Coffee Collective (Jægersborggade)',
+  'Prolog Coffee Bar',
+  'Democratic Coffee',
+  'Andersen & Maillard',
+  'Original Coffee (Illum Rooftop)',
+  'La Cabra',
+  'Kaffedepartementet',
+  'Rist Kaffebar',
+  'Sonny',
+  'April Coffee',
+]
+
 const MarathonCalculator = () => {
   const [targetTime, setTargetTime] = useState('')
   const [weight, setWeight] = useState('')
+  const [brand, setBrand] = useState<'Maurten' | 'Powerbar'>('Maurten')
+  const [coffeeLove, setCoffeeLove] = useState(3)
+  const [showTooltip, setShowTooltip] = useState(false)
   const [result, setResult] = useState<CalculationResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [hasSubmitted, setHasSubmitted] = useState(false)
@@ -99,14 +121,16 @@ const MarathonCalculator = () => {
       let baseHydration = weightKg * 4
       baseHydration *= (1 + (tempC > 20 ? (tempC - 20) * 0.05 : 0))
       baseHydration *= (1 + (humidityPercent > 60 ? (humidityPercent - 60) * 0.01 : 0))
+      const gelName = brand === 'Maurten' ? 'GEL 100' : 'PowerGel Original'
+      const cafGelName = brand === 'Maurten' ? 'CAF 100' : 'PowerGel Hydro Caffeine'
       const timeline: string[] = []
       let currentMinute = 30
       const intervalMinutes = Math.floor(totalMinutes / totalGels)
       for (let i = 0; i < totalGels; i++) {
         const timeHours = Math.floor(currentMinute / 60)
         const timeMinutes = currentMinute % 60
-        const gelType = i >= regularGels ? 'CAF 100' : 'GEL 100'
-        timeline.push(`${timeHours}:${timeMinutes.toString().padStart(2, '0')} - Take MAURTEN ${gelType}`)
+        const gelType = i >= regularGels ? cafGelName : gelName
+        timeline.push(`${timeHours}:${timeMinutes.toString().padStart(2, '0')} - Take ${brand} ${gelType}`)
         currentMinute += intervalMinutes
       }
       const dailyCarbs = Math.round(weightKg * 8)
@@ -289,16 +313,27 @@ const MarathonCalculator = () => {
     </Box>
   )
 
+  // Weather explanation box
+  const WeatherExplanation = () => (
+    <Box bg="gray.100" borderRadius="md" p={4} mb={4} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
+      <Text fontWeight="bold" mb={2} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">How weather is used in the calculation</Text>
+      <Text fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
+        The calculator uses the latest weather forecast for race day in Copenhagen (temperature, humidity, wind, and UV) to adjust your gel and hydration needs. Higher temperature and humidity increase your recommended intake. The forecast is updated automatically for the correct date.
+      </Text>
+    </Box>
+  )
+
   return (
-    <Flex direction="column" align="center" justify="center" width="100%" minH="60vh" p={4}>
+    <Flex direction="column" align="center" justify="center" width="100%" minH="60vh" p={4} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
       {/* Show form only if not submitted or loading */}
       {(!hasSubmitted || loading) && (
-        <Box bg="gray.50" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="gray.200" width="100%" maxW="420px" mx="auto">
+        <Box bg="gray.50" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="gray.200" width="100%" maxW="420px" mx="auto" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
+          <WeatherExplanation />
           <Stack spacing={6} width="100%">
             <Grid templateColumns="1fr" gap={6} width="100%">
               <GridItem>
                 <FormControl isRequired>
-                  <FormLabel color="black">Target Marathon Time (HH:MM)</FormLabel>
+                  <FormLabel color="black" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Target Marathon Time (HH:MM)</FormLabel>
                   <Input
                     type="text"
                     placeholder="04:00"
@@ -310,12 +345,13 @@ const MarathonCalculator = () => {
                     borderColor="gray.300"
                     _placeholder={{ color: 'gray.500' }}
                     width="100%"
+                    fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
                   />
                 </FormControl>
               </GridItem>
               <GridItem>
                 <FormControl isRequired>
-                  <FormLabel color="black">Weight (kg)</FormLabel>
+                  <FormLabel color="black" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Weight (kg)</FormLabel>
                   <NumberInput min={30} max={150} width="100%">
                     <NumberInputField
                       value={weight}
@@ -326,12 +362,52 @@ const MarathonCalculator = () => {
                       borderColor="gray.300"
                       _placeholder={{ color: 'gray.500' }}
                       width="100%"
+                      fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
                     />
                   </NumberInput>
                 </FormControl>
               </GridItem>
+              <GridItem>
+                <FormControl isRequired>
+                  <FormLabel color="black" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Nutrition Brand</FormLabel>
+                  <Select value={brand} onChange={e => setBrand(e.target.value as 'Maurten' | 'Powerbar')} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
+                    <option value="Maurten">Maurten</option>
+                    <option value="Powerbar">Powerbar</option>
+                  </Select>
+                </FormControl>
+              </GridItem>
+              <GridItem>
+                <FormControl>
+                  <FormLabel color="black" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Love for coffee</FormLabel>
+                  <Slider
+                    id="coffeeLove"
+                    defaultValue={3}
+                    min={1}
+                    max={5}
+                    colorScheme="red"
+                    value={coffeeLove}
+                    onChange={setCoffeeLove}
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack />
+                    </SliderTrack>
+                    <Tooltip
+                      hasArrow
+                      bg="red.400"
+                      color="white"
+                      placement="top"
+                      isOpen={showTooltip}
+                      label={coffeeLove}
+                    >
+                      <SliderThumb />
+                    </Tooltip>
+                  </Slider>
+                </FormControl>
+              </GridItem>
             </Grid>
-            <Button colorScheme="blue" size="lg" onClick={calculateGelStrategy} width="100%" alignSelf="center" isLoading={loading}>
+            <Button colorScheme="blue" size="lg" onClick={calculateGelStrategy} width="100%" alignSelf="center" isLoading={loading} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
               Calculate Strategy
             </Button>
           </Stack>
@@ -339,40 +415,60 @@ const MarathonCalculator = () => {
       )}
       {/* Show results only after submit and not loading */}
       {hasSubmitted && !loading && result && (
-        <Box bg="gray.50" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="gray.200" width="100%" maxW="700px" mx="auto" mt={8}>
+        <Box bg="gray.50" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="gray.200" width="100%" maxW="700px" mx="auto" mt={8} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
           <Stack spacing={8} align="center" width="100%">
             <WeatherForecast />
             <ThreeDayOverview />
             <RaceDayBreakfastSection />
             <Divider my={6} borderColor="gray.200" />
-            <Alert 
-              status="success" 
-              mb={4} 
-              variant="subtle"
-              borderRadius="md"
-            >
-              <AlertIcon />
-              You will need {result.totalGels} gels in total ({result.regularGels} regular GEL 100 and{' '}
-              {result.caffeineGels} CAF 100)
-            </Alert>
-            <Text fontSize="lg" mb={2} color="black">
-              Recommended hydration: {result.hydrationPerHour}ml per hour
-            </Text>
-            <Divider my={4} borderColor="gray.200" />
-            <Text fontSize="lg" fontWeight="bold" mb={2} color="black">
-              Gel Timeline:
-            </Text>
-            <Stack spacing={2}>
-              {result.timeline.map((time, index) => (
-                <Text 
-                  key={index} 
-                  color="black" 
-                  fontFamily="'Courier Prime', 'Courier New', monospace"
-                >
-                  {time}
-                </Text>
-              ))}
-            </Stack>
+            {/* Gel strategy section now also Helvetica */}
+            <Box width="100%">
+              <Alert 
+                status="success" 
+                mb={4} 
+                variant="subtle"
+                borderRadius="md"
+              >
+                <AlertIcon />
+                You will need {result.totalGels} gels in total ({result.regularGels} regular {brand} {brand === 'Maurten' ? 'GEL 100' : 'PowerGel Original'} and {result.caffeineGels} {brand} {brand === 'Maurten' ? 'CAF 100' : 'PowerGel Hydro Caffeine'})
+              </Alert>
+              <Text fontSize="lg" mb={2} color="black">
+                Recommended hydration: {result.hydrationPerHour}ml per hour
+              </Text>
+              <Divider my={4} borderColor="gray.200" />
+              <Text fontSize="lg" fontWeight="bold" mb={2} color="black">
+                Gel Timeline:
+              </Text>
+              <Stack spacing={2}>
+                {result.timeline.map((time, index) => (
+                  <Text 
+                    key={index} 
+                    color="black" 
+                    fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+                  >
+                    {time}
+                  </Text>
+                ))}
+              </Stack>
+            </Box>
+            {/* Coffee recommendations in Helvetica */}
+            <Box width="100%" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
+              <Divider my={6} borderColor="gray.200" />
+              <Text fontSize="xl" fontWeight="bold" mb={2} color="black">
+                Coffee Recommendations in Copenhagen
+              </Text>
+              <List spacing={2}>
+                {coffeeShops.slice(0, coffeeLove).map((shop, idx) => (
+                  <ListItem key={shop}>
+                    <ListIcon as={CheckCircleIcon} color="red.500" />
+                    {shop}
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+            <Button mt={6} colorScheme="gray" variant="outline" onClick={() => { setHasSubmitted(false); setResult(null); setLoading(false); }}>
+              Recalculate
+            </Button>
           </Stack>
         </Box>
       )}
