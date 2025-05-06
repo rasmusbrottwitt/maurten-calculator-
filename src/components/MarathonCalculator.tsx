@@ -238,7 +238,7 @@ const MarathonCalculator = () => {
     if (specialType === 'vibe') {
       return 'pink.400';
     }
-    if (isSpecialUser) {
+    if (specialType === 'white-monster' || specialType === 'gin') {
       return 'black';
     }
     return isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.700';
@@ -249,7 +249,7 @@ const MarathonCalculator = () => {
     if (specialType === 'vibe') {
       return 'pink.600';
     }
-    if (isSpecialUser) {
+    if (specialType === 'white-monster' || specialType === 'gin') {
       return 'red.500';
     }
     return isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.400';
@@ -260,7 +260,7 @@ const MarathonCalculator = () => {
     if (specialType === 'vibe') {
       return 'pink.500';
     }
-    if (isSpecialUser) {
+    if (specialType === 'white-monster' || specialType === 'gin') {
       return 'black';
     }
     return 'blue.600';
@@ -271,7 +271,7 @@ const MarathonCalculator = () => {
     if (specialType === 'vibe') {
       return 'pink.700';
     }
-    if (isSpecialUser) {
+    if (specialType === 'white-monster' || specialType === 'gin') {
       return 'red.500';
     }
     return '#3182ce';
