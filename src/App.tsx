@@ -12,7 +12,7 @@ const theme = extendTheme({
         color: 'white',
         minHeight: '100vh',
         margin: 0,
-        fontFamily: "'Lato', Helvetica, Arial, sans-serif",
+        fontFamily: "'Lato', Helvetica, Ariasl, sans-serif",
       }
     }
   },
