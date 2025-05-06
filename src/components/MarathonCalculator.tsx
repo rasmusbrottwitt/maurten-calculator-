@@ -166,6 +166,39 @@ const CityComparison = ({ city }: { city: string }) => {
   );
 };
 
+// Helper: Suggest a Copenhagen running route based on distance
+function getCopenhagenRoute(distanceKm: number) {
+  if (distanceKm < 5) return "The Lakes (Søerne) – flat, scenic, central";
+  if (distanceKm < 8) return "Fælledparken – big park, soft paths, good for 5-8km";
+  if (distanceKm < 12) return "Amager Fælled – nature, gravel, 8-12km loops";
+  if (distanceKm < 18) return "Utterslev Mose – lakes, nature, 12-18km";
+  return "Vestvolden or Sydhavnstippen – long, uninterrupted paths for 18km+";
+}
+
+// Helper: Suggest distance/intensity based on weekly mileage
+function getWorkoutSuggestion(day: string, weeklyMileage: string) {
+  const mileage = parseInt(weeklyMileage, 10);
+  let distance = 5, intensity = "easy";
+  if (isNaN(mileage)) return { distance, intensity };
+
+  if (day === "Saturday") {
+    // Shakeout run logic
+    if (mileage < 40) distance = 3;
+    else if (mileage < 60) distance = 4;
+    else if (mileage < 80) distance = 5;
+    else distance = 6;
+    intensity = "very easy";
+  } else {
+    // Other days: short workout
+    if (mileage < 40) distance = 5;
+    else if (mileage < 60) distance = 6;
+    else if (mileage < 80) distance = 7;
+    else distance = 8;
+    intensity = "easy or strides";
+  }
+  return { distance, intensity };
+}
+
 const MarathonCalculator = () => {
   const [targetTime, setTargetTime] = useState('')
   const [weight, setWeight] = useState('')
@@ -427,24 +460,8 @@ const MarathonCalculator = () => {
   const ThursdayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
-    const carbSources = [
-      'White rice',
-      'Pasta',
-      'White bread',
-      'Potatoes',
-      'Bananas',
-      'Low-fiber cereals (e.g., Frosties)',
-      'Sports drinks (e.g., Maurten Drink Mix)',
-      'Fruit juice',
-      'Jam/honey',
-    ];
-    const foodsToAvoid = [
-      'High-fiber foods (brown bread, beans, lentils)',
-      'Fatty foods (fried, creamy sauces)',
-      'Spicy foods',
-      'Alcohol',
-      'Large amounts of raw vegetables',
-    ];
+    const workout = getWorkoutSuggestion("Thursday", weeklyMileage);
+    const route = getCopenhagenRoute(workout.distance);
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
     return (
@@ -459,10 +476,7 @@ const MarathonCalculator = () => {
           <Text>{coffeeRecs[0]}</Text>
         </BlueBox>
         <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
-        <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
-        <Text mb={1}>• <b>Include Maurten:</b> Start sipping Maurten Drink Mix 160/320 with meals and snacks</Text>
-        <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
-        <Text mb={1}>• <b>Shakeout run:</b> Easy 20–40 min run in the morning or midday</Text>
+        <Text mb={1}>• <b>Workout:</b> {workout.distance}km {workout.intensity} run. Suggested route: {route}</Text>
         <Text mb={1}>• <b>Sleep:</b> Aim for 8+ hours, keep a regular bedtime</Text>
         {partyLove > 0 && (
           <BlueBox>
@@ -476,24 +490,8 @@ const MarathonCalculator = () => {
   const FridayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
-    const carbSources = [
-      'White rice',
-      'Pasta',
-      'White bread',
-      'Potatoes',
-      'Bananas',
-      'Low-fiber cereals (e.g., Frosties)',
-      'Sports drinks (e.g., Maurten Drink Mix)',
-      'Fruit juice',
-      'Jam/honey',
-    ];
-    const foodsToAvoid = [
-      'High-fiber foods (brown bread, beans, lentils)',
-      'Fatty foods (fried, creamy sauces)',
-      'Spicy foods',
-      'Alcohol',
-      'Large amounts of raw vegetables',
-    ];
+    const workout = getWorkoutSuggestion("Friday", weeklyMileage);
+    const route = getCopenhagenRoute(workout.distance);
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
     return (
@@ -512,10 +510,7 @@ const MarathonCalculator = () => {
           </BlueBox>
         )}
         <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
-        <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
-        <Text mb={1}>• <b>Include Maurten:</b> Use Maurten Drink Mix with snacks, and consider a Maurten GEL 100 after your shakeout run</Text>
-        <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
-        <Text mb={1}>• <b>Shakeout run:</b> Easy 15–30 min run, ideally in the morning or join the Expo shakeout at 17:00</Text>
+        <Text mb={1}>• <b>Workout:</b> {workout.distance}km {workout.intensity} run. Suggested route: {route}</Text>
         <Text mb={1}>• <b>Sleep:</b> Prioritize 8+ hours, wind down early</Text>
         {partyLove > 1 && (
           <BlueBox>
@@ -529,24 +524,8 @@ const MarathonCalculator = () => {
   const SaturdayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
-    const carbSources = [
-      'White rice',
-      'Pasta',
-      'White bread',
-      'Potatoes',
-      'Bananas',
-      'Low-fiber cereals (e.g., Frosties)',
-      'Sports drinks (e.g., Maurten Drink Mix)',
-      'Fruit juice',
-      'Jam/honey',
-    ];
-    const foodsToAvoid = [
-      'High-fiber foods (brown bread, beans, lentils)',
-      'Fatty foods (fried, creamy sauces)',
-      'Spicy foods',
-      'Alcohol',
-      'Large amounts of raw vegetables',
-    ];
+    const workout = getWorkoutSuggestion("Saturday", weeklyMileage);
+    const route = getCopenhagenRoute(workout.distance);
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
     return (
@@ -565,10 +544,7 @@ const MarathonCalculator = () => {
           </BlueBox>
         )}
         <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
-        <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
-        <Text mb={1}>• <b>Include Maurten:</b> Use Maurten Drink Mix and snacks, keep fueling up</Text>
-        <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
-        <Text mb={1}>• <b>Shakeout run:</b> Optional 10–20 min jog, keep it easy</Text>
+        <Text mb={1}>• <b>Workout:</b> {workout.distance}km {workout.intensity} run. Suggested route: {route}</Text>
         <Text mb={1}>• <b>Sleep:</b> Prioritize 8+ hours, get to bed early</Text>
         {partyLove > 2 && (
           <BlueBox>
@@ -582,6 +558,8 @@ const MarathonCalculator = () => {
   const SundayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
+    const workout = getWorkoutSuggestion("Sunday", weeklyMileage);
+    const route = getCopenhagenRoute(workout.distance);
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
     const showAfterparty = partyLove > 1;
@@ -591,8 +569,7 @@ const MarathonCalculator = () => {
         <Text mb={1} color="white">• <b>Carb target (breakfast):</b> {carbLoading.breakfastCarbs}g ({carbLoading.breakfastCalories} kcal) 3–4 hours before start</Text>
         <Text mb={1} color="white">• <b>Good carb sources:</b> White bread with jam/honey, Frosties with milk, bananas, Maurten Drink Mix, sports drink</Text>
         <Text mb={1} color="white">• <b>Include Maurten:</b> Maurten Drink Mix or GEL 100 as part of breakfast and pre-race hydration</Text>
-        <Text mb={1} color="white">• <b>Foods to avoid:</b> High-fiber, fatty, or spicy foods; dairy if sensitive</Text>
-        <Text mb={1} color="white">• <b>Shakeout:</b> Optional 5–10 min jog and drills 2–3 hours before start</Text>
+        <Text mb={1} color="white">• <b>Workout:</b> {workout.distance}km {workout.intensity} run. Suggested route: {route}</Text>
         <Text mb={1} color="white">• <b>Sleep:</b> Don't stress if you sleep less, but try to rest and stay off your feet</Text>
         {coffeeLove > 3 && (
           <BlueBox>
