@@ -68,21 +68,26 @@ function App() {
             <Image
               src="/images/loberencalc.PNG"
               alt="Løberen Calculator Logo"
-              width="320px"
+              width="80vw"
+              maxWidth="800px"
+              maxHeight="80vh"
               height="auto"
               objectFit="contain"
               style={{ filter: 'drop-shadow(0 0 32px #fff)' }}
+              display="block"
+              mx="auto"
             />
           </Flex>
         )}
         {/* Animated logo */}
         <Box
-          maxW="250px"
           width="100%"
+          maxWidth="520px"
           pt="10mm"
           pb="10mm"
           position="relative"
           zIndex={10}
+          mx="auto"
           style={{
             transition: 'transform 0.6s cubic-bezier(.77,0,.18,1)',
             transform: showSplash && !logoAnimated
@@ -97,9 +102,9 @@ function App() {
             src="/images/loberencalc.PNG"
             alt="Løberen Calculator Logo"
             width="100%"
+            maxWidth="520px"
             height="auto"
             objectFit="contain"
-            maxH="15vh"
             display="block"
             mx="auto"
           />

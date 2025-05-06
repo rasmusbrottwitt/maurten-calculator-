@@ -279,7 +279,7 @@ const MarathonCalculator = () => {
     const partyRecs = barList.slice(0, partyLove);
     const showAfterparty = partyLove > 1;
     const ExpoBox = ({ children }: { children: React.ReactNode }) => (
-      <Box bg="red.50" borderLeft="4px solid #E53E3E" p={3} my={2} borderRadius="md">
+      <Box bg="red.50" borderLeft="4px solid #E53E3E" p={3} my={2} borderRadius="md" color="black">
         {children}
       </Box>
     );
@@ -372,12 +372,12 @@ const MarathonCalculator = () => {
           {/* Sunday */}
           <Box>
             <Text fontSize="lg" fontWeight="semibold" mb={2} color="white">Sunday (Race Day)</Text>
-            <Text mb={1}>• <b>Carb target (breakfast):</b> {carbLoading.breakfastCarbs}g ({carbLoading.breakfastCalories} kcal) 3–4 hours before start</Text>
-            <Text mb={1}>• <b>Good carb sources:</b> White bread with jam/honey, Frosties with milk, bananas, Maurten Drink Mix, sports drink</Text>
-            <Text mb={1}>• <b>Include Maurten:</b> Maurten Drink Mix or GEL 100 as part of breakfast and pre-race hydration</Text>
-            <Text mb={1}>• <b>Foods to avoid:</b> High-fiber, fatty, or spicy foods; dairy if sensitive</Text>
-            <Text mb={1}>• <b>Shakeout:</b> Optional 5–10 min jog and drills 2–3 hours before start</Text>
-            <Text mb={1}>• <b>Sleep:</b> Don't stress if you sleep less, but try to rest and stay off your feet</Text>
+            <Text mb={1} color="white">• <b>Carb target (breakfast):</b> {carbLoading.breakfastCarbs}g ({carbLoading.breakfastCalories} kcal) 3–4 hours before start</Text>
+            <Text mb={1} color="white">• <b>Good carb sources:</b> White bread with jam/honey, Frosties with milk, bananas, Maurten Drink Mix, sports drink</Text>
+            <Text mb={1} color="white">• <b>Include Maurten:</b> Maurten Drink Mix or GEL 100 as part of breakfast and pre-race hydration</Text>
+            <Text mb={1} color="white">• <b>Foods to avoid:</b> High-fiber, fatty, or spicy foods; dairy if sensitive</Text>
+            <Text mb={1} color="white">• <b>Shakeout:</b> Optional 5–10 min jog and drills 2–3 hours before start</Text>
+            <Text mb={1} color="white">• <b>Sleep:</b> Don't stress if you sleep less, but try to rest and stay off your feet</Text>
             {coffeeLove > 3 && (
               <BlueBox>
                 <Text fontWeight="bold">Coffee tip:</Text>
@@ -471,9 +471,9 @@ const MarathonCalculator = () => {
 
   // Weather explanation box
   const WeatherExplanation = () => (
-    <Box bg="gray.100" borderRadius="md" p={4} mb={4} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
-      <Text fontWeight="bold" mb={2} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">How weather is used in the calculation</Text>
-      <Text fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <Box bg="gray.100" borderRadius="md" p={4} mb={4} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" color="black">
+      <Text fontWeight="bold" mb={2} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" color="black">How weather is used in the calculation</Text>
+      <Text fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" color="black">
         The calculator uses the latest weather forecast for race day in Copenhagen (temperature, humidity, wind, and UV) to adjust your gel and hydration needs. Higher temperature and humidity increase your recommended intake. The forecast is updated automatically for the correct date.
       </Text>
     </Box>
@@ -705,28 +705,32 @@ const MarathonCalculator = () => {
             <RaceDayBreakfastSection />
             <Divider my={6} borderColor="gray.200" />
             {/* Gel strategy section now also Helvetica */}
-            <Box width="100%">
+            <Box width="100%" color="white">
               <Alert 
                 status="success" 
                 mb={4} 
                 variant="subtle"
                 borderRadius="md"
+                color="white"
+                bg="red.500"
               >
-                <AlertIcon />
-                You will need {result.totalGels} gels in total ({result.regularGels} regular {brand} {brand === 'Maurten' ? 'GEL 100' : 'PowerGel Original'} and {result.caffeineGels} {brand} {brand === 'Maurten' ? 'CAF 100' : 'PowerGel Hydro Caffeine'})
+                <AlertIcon color="white" />
+                <span style={{ color: 'white' }}>
+                  You will need {result.totalGels} gels in total ({result.regularGels} regular {brand} {brand === 'Maurten' ? 'GEL 100' : 'PowerGel Original'} and {result.caffeineGels} {brand} {brand === 'Maurten' ? 'CAF 100' : 'PowerGel Hydro Caffeine'})
+                </span>
               </Alert>
-              <Text fontSize="lg" mb={2} color="black">
+              <Text fontSize="lg" mb={2} color="white">
                 Recommended hydration: {result.hydrationPerHour}ml per hour
               </Text>
               <Divider my={4} borderColor="gray.200" />
-              <Text fontSize="lg" fontWeight="bold" mb={2} color="black">
+              <Text fontSize="lg" fontWeight="bold" mb={2} color="white">
                 Gel Timeline:
               </Text>
               <Stack spacing={2}>
                 {result.timeline.map((time, index) => (
                   <Text 
                     key={index} 
-                    color="black" 
+                    color="white" 
                     fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
                   >
                     {time}
