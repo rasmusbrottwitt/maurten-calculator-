@@ -406,32 +406,32 @@ const MarathonCalculator = () => {
 
   // New Race Day Breakfast Section
   const RaceDayBreakfastSection = () => (
-    <Box mt={8} color="black">
-      <Text fontSize="2xl" fontWeight="extrabold" mb={4}>
+    <Box mt={8} color="white">
+      <Text fontSize="2xl" fontWeight="extrabold" mb={4} color="white">
         Race Day Breakfast: What to Eat & When
       </Text>
       <Table variant="simple" mb={6} maxW="400px">
         <Thead>
           <Tr>
-            <Th>Breakfast Target</Th>
-            <Th isNumeric>Amount</Th>
+            <Th color="white">Breakfast Target</Th>
+            <Th isNumeric color="white">Amount</Th>
           </Tr>
         </Thead>
         <Tbody>
           <Tr>
-            <Td>Carbohydrates</Td>
-            <Td isNumeric>{result?.carbLoading.breakfastCarbs}g</Td>
+            <Td color="white">Carbohydrates</Td>
+            <Td isNumeric color="white">{result?.carbLoading.breakfastCarbs}g</Td>
           </Tr>
           <Tr>
-            <Td>Calories from Carbs</Td>
-            <Td isNumeric>{result?.carbLoading.breakfastCalories} kcal</Td>
+            <Td color="white">Calories from Carbs</Td>
+            <Td isNumeric color="white">{result?.carbLoading.breakfastCalories} kcal</Td>
           </Tr>
         </Tbody>
       </Table>
-      <Text fontSize="lg" mb={3}>
+      <Text fontSize="lg" mb={3} color="white">
         Suggested Breakfast Options:
       </Text>
-      <List spacing={2}>
+      <List spacing={2} color="white">
         <ListItem>
           <ListIcon as={CheckCircleIcon} color="green.500" />
           Frosties with milk (28g carbs per 30g serving)
@@ -449,23 +449,30 @@ const MarathonCalculator = () => {
           Sports drink (15g carbs per 250ml)
         </ListItem>
       </List>
-      <Text fontSize="md" mt={4} color="gray.600">
+      <Text fontSize="md" mt={4} color="white">
         Eat breakfast 3–4 hours before the race. Sip Maurten Drink Mix or sports drink up to 30 minutes before the start.
       </Text>
+      {/* Jetlag tip for travelers */}
+      {needsJetlagAdvice(homeCity) && (
+        <Box mt={4} bg="blue.600" borderLeft="4px solid #3182ce" p={3} borderRadius="md" color="white">
+          <Text fontWeight="bold">Jetlag Tip:</Text>
+          <Text>Arriving from far away? Try to arrive a few days early, get sunlight in the morning, and avoid caffeine late in the day. Consider adjusting your sleep schedule a few days before travel.</Text>
+        </Box>
+      )}
     </Box>
   )
 
   // Weather forecast card
   const WeatherForecast = () => (
     <Box mb={8} p={4} bg="blue.50" borderRadius="md" boxShadow="sm" border="1px solid" borderColor="blue.200" maxW="400px" mx="auto">
-      <Text fontSize="lg" fontWeight="bold" mb={2}>Weather Forecast for Race Day</Text>
-      <Text><b>Date:</b> {weather.date}</Text>
-      <Text><b>Conditions:</b> {weather.conditions}</Text>
-      <Text><b>Temperature:</b> {weather.temperature}°C</Text>
-      <Text><b>Humidity:</b> {weather.humidity}%</Text>
-      <Text><b>Wind:</b> {weather.wind}</Text>
-      <Text><b>UV Index:</b> {weather.uv} (Moderate)</Text>
-      <Text><b>Sunrise:</b> {weather.sunrise} <b>Sunset:</b> {weather.sunset}</Text>
+      <Text fontSize="lg" fontWeight="bold" mb={2} color="black">Weather Forecast for Race Day</Text>
+      <Text color="black"><b>Date:</b> {weather.date}</Text>
+      <Text color="black"><b>Conditions:</b> {weather.conditions}</Text>
+      <Text color="black"><b>Temperature:</b> {weather.temperature}°C</Text>
+      <Text color="black"><b>Humidity:</b> {weather.humidity}%</Text>
+      <Text color="black"><b>Wind:</b> {weather.wind}</Text>
+      <Text color="black"><b>UV Index:</b> {weather.uv} (Moderate)</Text>
+      <Text color="black"><b>Sunrise:</b> {weather.sunrise} <b>Sunset:</b> {weather.sunset}</Text>
     </Box>
   )
 
@@ -517,11 +524,11 @@ const MarathonCalculator = () => {
           <Stack spacing={8} width="100%">
             {/* Running Details Section */}
             <Box mb={2}>
-              <Text fontSize="xl" fontWeight="bold" mb={2} color="white">Running Details</Text>
+              <Text fontSize="xl" fontWeight="bold" mb={2} color="white" fontFamily="'Fjalla One', Helvetica, Arial, sans-serif">Running Details</Text>
               <Grid templateColumns="1fr" gap={6} width="100%">
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel color="white" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Target Marathon Time (HH:MM)</FormLabel>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Target Marathon Time (HH:MM)</FormLabel>
                     <Input
                       type="text"
                       placeholder="04:00"
@@ -533,13 +540,13 @@ const MarathonCalculator = () => {
                       borderColor="red.300"
                       _placeholder={{ color: 'red.300' }}
                       width="100%"
-                      fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+                      fontFamily="'Lato', Helvetica, Arial, sans-serif"
                     />
                   </FormControl>
                 </GridItem>
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel color="white" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Weight (kg)</FormLabel>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Weight (kg)</FormLabel>
                     <NumberInput min={30} max={150} width="100%">
                       <NumberInputField
                         value={weight}
@@ -550,14 +557,14 @@ const MarathonCalculator = () => {
                         borderColor="red.300"
                         _placeholder={{ color: 'red.300' }}
                         width="100%"
-                        fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+                        fontFamily="'Lato', Helvetica, Arial, sans-serif"
                       />
                     </NumberInput>
                   </FormControl>
                 </GridItem>
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel color="white" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Weekly average mileage (km)</FormLabel>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Weekly average mileage (km)</FormLabel>
                     <NumberInput min={0} max={300} width="100%">
                       <NumberInputField
                         value={weeklyMileage}
@@ -568,14 +575,14 @@ const MarathonCalculator = () => {
                         borderColor="red.300"
                         _placeholder={{ color: 'red.300' }}
                         width="100%"
-                        fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+                        fontFamily="'Lato', Helvetica, Arial, sans-serif"
                       />
                     </NumberInput>
                   </FormControl>
                 </GridItem>
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel color="white" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Peak week mileage (km)</FormLabel>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Peak week mileage (km)</FormLabel>
                     <NumberInput min={0} max={400} width="100%">
                       <NumberInputField
                         value={peakMileage}
@@ -586,7 +593,7 @@ const MarathonCalculator = () => {
                         borderColor="red.300"
                         _placeholder={{ color: 'red.300' }}
                         width="100%"
-                        fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+                        fontFamily="'Lato', Helvetica, Arial, sans-serif"
                       />
                     </NumberInput>
                   </FormControl>
@@ -595,11 +602,11 @@ const MarathonCalculator = () => {
             </Box>
             {/* Social Details Section */}
             <Box mb={2}>
-              <Text fontSize="xl" fontWeight="bold" mb={2} color="white">Social Details</Text>
+              <Text fontSize="xl" fontWeight="bold" mb={2} color="white" fontFamily="'Fjalla One', Helvetica, Arial, sans-serif">Social Details</Text>
               <Grid templateColumns="1fr" gap={6} width="100%">
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel color="white" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Home city</FormLabel>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Home city</FormLabel>
                     <Input
                       type="text"
                       placeholder="e.g. London"
@@ -610,13 +617,13 @@ const MarathonCalculator = () => {
                       borderColor="red.300"
                       _placeholder={{ color: 'red.300' }}
                       width="100%"
-                      fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+                      fontFamily="'Lato', Helvetica, Arial, sans-serif"
                     />
                   </FormControl>
                 </GridItem>
                 <GridItem>
                   <FormControl>
-                    <FormLabel color="white" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Love for coffee</FormLabel>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Love for coffee</FormLabel>
                     <Slider
                       id="coffeeLove"
                       defaultValue={3}
@@ -646,7 +653,7 @@ const MarathonCalculator = () => {
                 </GridItem>
                 <GridItem>
                   <FormControl>
-                    <FormLabel color="white" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Love for party</FormLabel>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Love for party</FormLabel>
                     <Slider
                       id="partyLove"
                       defaultValue={1}
@@ -680,15 +687,15 @@ const MarathonCalculator = () => {
             <Grid templateColumns="1fr" gap={6} width="100%">
               <GridItem>
                 <FormControl isRequired>
-                  <FormLabel color="white" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">Nutrition Brand</FormLabel>
-                  <Select value={brand} onChange={e => setBrand(e.target.value as 'Maurten' | 'Powerbar')} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" bg="white" color="red.700" borderColor="red.300">
+                  <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Nutrition Brand</FormLabel>
+                  <Select value={brand} onChange={e => setBrand(e.target.value as 'Maurten' | 'Powerbar')} fontFamily="'Lato', Helvetica, Arial, sans-serif" bg="white" color="red.700" borderColor="red.300">
                     <option value="Maurten">Maurten</option>
                     <option value="Powerbar">Powerbar</option>
                   </Select>
                 </FormControl>
               </GridItem>
             </Grid>
-            <Button colorScheme="whiteAlpha" size="lg" onClick={calculateGelStrategy} width="100%" alignSelf="center" isLoading={loading} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" color="red.700" bg="white" _hover={{ bg: 'red.200' }}>
+            <Button colorScheme="whiteAlpha" size="lg" onClick={calculateGelStrategy} width="100%" alignSelf="center" isLoading={loading} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="red.700" bg="white" _hover={{ bg: 'red.200' }}>
               Calculate Strategy
             </Button>
           </Stack>

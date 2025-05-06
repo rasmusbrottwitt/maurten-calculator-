@@ -1,6 +1,7 @@
 import { ChakraProvider, Heading, Stack, extendTheme, Image, Box, Flex } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import MarathonCalculator from './components/MarathonCalculator'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Create a custom theme with Helvetica and red background, white text
 const theme = extendTheme({
@@ -11,117 +12,133 @@ const theme = extendTheme({
         color: 'white',
         minHeight: '100vh',
         margin: 0,
-        fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+        fontFamily: "'Lato', Helvetica, Arial, sans-serif",
       }
     }
   },
   fonts: {
-    heading: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-    body: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    heading: "'Fjalla One', Helvetica, Arial, sans-serif",
+    body: "'Lato', Helvetica, Arial, sans-serif",
   },
 })
 
 function App() {
   const [showSplash, setShowSplash] = useState(true)
-  const [logoAnimated, setLogoAnimated] = useState(false)
 
   useEffect(() => {
     // Show splash for 1 second, then animate logo
     const timer = setTimeout(() => {
-      setLogoAnimated(true)
-      setTimeout(() => setShowSplash(false), 600) // allow slide animation to finish
-    }, 1000)
+      setShowSplash(false)
+    }, 1400)
     return () => clearTimeout(timer)
   }, [])
 
+  // Responsive logo sizes
+  const logoSizes = {
+    splash: { width: '80vw', maxWidth: 480, minWidth: 180 },
+    header: { width: '100%', maxWidth: 340, minWidth: 120 },
+  }
+
   return (
     <ChakraProvider theme={theme}>
-      <Flex 
-        minH="100vh" 
-        direction="column" 
-        align="center" 
+      <Flex
+        minH="100vh"
+        direction="column"
+        align="center"
         justify="flex-start"
         width="100vw"
         maxWidth="100vw"
-        px={0}
-        pt="10mm"
-        pb="10mm"
+        px={{ base: 0, md: 0 }}
+        pt={{ base: 4, md: '10mm' }}
+        pb={{ base: 4, md: '10mm' }}
         bg="red.600"
         color="white"
         position="relative"
         overflow="hidden"
       >
-        {/* Splash screen overlay */}
-        {showSplash && (
-          <Flex
-            position="fixed"
-            top={0}
-            left={0}
-            width="100vw"
-            height="100vh"
-            bg="red.600"
-            zIndex={1000}
-            align="center"
-            justify="center"
-            transition="opacity 0.5s"
-          >
-            <Image
-              src="/images/loberencalc.PNG"
-              alt="Løberen Calculator Logo"
-              width="80vw"
-              maxWidth="800px"
-              maxHeight="80vh"
-              height="auto"
-              objectFit="contain"
-              style={{ filter: 'drop-shadow(0 0 32px #fff)' }}
-              display="block"
-              mx="auto"
-            />
-          </Flex>
-        )}
-        {/* Animated logo */}
-        <Box
-          width="100%"
-          maxWidth="520px"
-          pt="10mm"
-          pb="10mm"
-          position="relative"
-          zIndex={10}
-          mx="auto"
+        {/* Animated logo splash and header */}
+        <AnimatePresence>
+          {showSplash && (
+            <motion.div
+              key="splash"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.6 } }}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                background: 'rgba(220,38,38,1)',
+                zIndex: 1000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <motion.img
+                src="/images/loberencalc.PNG"
+                alt="Løberen Calculator Logo"
+                initial={{ scale: 1, y: 0 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.4, y: -180, transition: { type: 'spring', stiffness: 80, damping: 18 } }}
+                style={{
+                  width: logoSizes.splash.width,
+                  maxWidth: logoSizes.splash.maxWidth,
+                  minWidth: logoSizes.splash.minWidth,
+                  height: 'auto',
+                  filter: 'drop-shadow(0 0 32px #fff)',
+                  borderRadius: 24,
+                  background: 'rgba(255,255,255,0.01)',
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {/* Animated logo header after splash */}
+        <motion.div
+          key="header-logo"
+          initial={showSplash ? { scale: 1.5, y: 120, opacity: 0 } : { scale: 1, y: 0, opacity: 1 }}
+          animate={showSplash ? { scale: 1.5, y: 120, opacity: 0 } : { scale: 1, y: 0, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 80, damping: 18 }}
           style={{
-            transition: 'transform 0.6s cubic-bezier(.77,0,.18,1)',
-            transform: showSplash && !logoAnimated
-              ? 'translateY(40vh) scale(2)' // start large and centered
-              : logoAnimated && showSplash
-                ? 'translateY(0) scale(1)' // animate to normal
-                : 'translateY(0) scale(1)', // normal
-            opacity: showSplash && !logoAnimated ? 1 : 1,
+            width: logoSizes.header.width,
+            maxWidth: logoSizes.header.maxWidth,
+            minWidth: logoSizes.header.minWidth,
+            margin: '0 auto',
+            paddingTop: 0,
+            paddingBottom: 0,
+            zIndex: 10,
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <Image
+          <img
             src="/images/loberencalc.PNG"
             alt="Løberen Calculator Logo"
-            width="100%"
-            maxWidth="520px"
-            height="auto"
-            objectFit="contain"
-            display="block"
-            mx="auto"
+            style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 16 }}
           />
-        </Box>
-        <Stack spacing={4} textAlign="center" width="100vw" maxWidth="100vw">
-          <Heading 
-            as="h1" 
-            size="xl" 
-            color="white" 
-            fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+        </motion.div>
+        <Stack spacing={4} textAlign="center" width="100vw" maxWidth="100vw" px={{ base: 2, md: 0 }}>
+          <Heading
+            as="h1"
+            size="xl"
+            color="white"
+            fontFamily="'Fjalla One', Helvetica, Arial, sans-serif"
+            fontWeight="extrabold"
+            letterSpacing="tight"
+            mt={{ base: 2, md: 4 }}
+            mb={{ base: 2, md: 4 }}
           >
             Raceweek Calculator
           </Heading>
         </Stack>
         {/* Only show the calculator after splash is gone */}
         {!showSplash && (
-          <Box width="100vw" maxWidth="100vw">
+          <Box width="100vw" maxWidth="100vw" px={{ base: 2, md: 0 }}>
             <MarathonCalculator />
           </Box>
         )}
