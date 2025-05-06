@@ -1,4 +1,4 @@
-import { ChakraProvider, Heading, Stack, extendTheme, Image, Box, Flex } from '@chakra-ui/react'
+import { ChakraProvider, Heading, Stack, extendTheme, Box, Flex } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import MarathonCalculator from './components/MarathonCalculator'
 import { motion, AnimatePresence } from 'framer-motion'
