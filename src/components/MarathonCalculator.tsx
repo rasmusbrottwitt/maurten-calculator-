@@ -84,7 +84,14 @@ const float = keyframes`
 
 // Blue highlight box for coffee/party/travel recs
 const BlueBox = ({ children }: { children: React.ReactNode }) => (
-  <Box bg="blue.600" borderLeft="4px solid #3182ce" p={3} my={2} borderRadius="md" color="white">
+  <Box 
+    bg="blue.600" 
+    borderLeft="4px solid #3182ce" 
+    p={3} 
+    my={2} 
+    borderRadius="md" 
+    color="white"
+  >
     {children}
   </Box>
 )
@@ -217,10 +224,72 @@ const MarathonCalculator = () => {
     if (lowerName.includes('kallebumbum')) {
       return 'gin';
     }
+    if (lowerName.includes('vibe')) {
+      return 'vibe';
+    }
     return null;
   }
 
   const specialType = getSpecialRecommendations();
+  const isSpecialUser = specialType !== null;
+
+  // Helper function to get background color based on user type
+  const getBackgroundColor = () => {
+    if (specialType === 'vibe') {
+      return 'pink.400';
+    }
+    if (isSpecialUser) {
+      return 'black';
+    }
+    return isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.700';
+  }
+
+  // Helper function to get border color based on user type
+  const getBorderColor = () => {
+    if (specialType === 'vibe') {
+      return 'pink.600';
+    }
+    if (isSpecialUser) {
+      return 'red.500';
+    }
+    return isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.400';
+  }
+
+  // Helper function to get box background color based on user type
+  const getBoxBackgroundColor = () => {
+    if (specialType === 'vibe') {
+      return 'pink.500';
+    }
+    if (isSpecialUser) {
+      return 'black';
+    }
+    return 'blue.600';
+  }
+
+  // Helper function to get box border color based on user type
+  const getBoxBorderColor = () => {
+    if (specialType === 'vibe') {
+      return 'pink.700';
+    }
+    if (isSpecialUser) {
+      return 'red.500';
+    }
+    return '#3182ce';
+  }
+
+  // Update BlueBox component to use dynamic colors
+  const BlueBox = ({ children }: { children: React.ReactNode }) => (
+    <Box 
+      bg={getBoxBackgroundColor()} 
+      borderLeft={`4px solid ${getBoxBorderColor()}`} 
+      p={3} 
+      my={2} 
+      borderRadius="md" 
+      color="white"
+    >
+      {children}
+    </Box>
+  )
 
   const calculateGelStrategy = () => {
     setLoading(true)
@@ -730,13 +799,24 @@ const MarathonCalculator = () => {
   }, [resultsPage, showConfetti])
 
   return (
-    <Flex direction="column" align="center" justify="center" width="100%" minH="60vh" p={4} fontFamily="'Lato', Helvetica, Arial, sans-serif" bg={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.700'}>
+    <Flex direction="column" align="center" justify="center" width="100%" minH="60vh" p={4} fontFamily="'Lato', Helvetica, Arial, sans-serif" bg={getBackgroundColor()}>
       {showConfetti && <Confetti />}
       {/* Show animation while loading */}
       {loading && <MathLoadingAnimation />}
       {/* Show form only if not submitted and not loading */}
       {(!hasSubmitted && !loading) && (
-        <Box bg={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.700'} p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.400'} width="100%" maxW="520px" mx="auto" fontFamily="'Lato', Helvetica, Arial, sans-serif">
+        <Box 
+          bg={getBackgroundColor()} 
+          p={8} 
+          borderRadius="lg" 
+          boxShadow="md" 
+          border="1px solid" 
+          borderColor={getBorderColor()} 
+          width="100%" 
+          maxW="520px" 
+          mx="auto" 
+          fontFamily="'Lato', Helvetica, Arial, sans-serif"
+        >
           {/* Inspiration disclaimer */}
           <Box mb={6}>
             <Text color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif" fontSize="md" textAlign="center">
@@ -924,7 +1004,20 @@ const MarathonCalculator = () => {
       )}
       {/* Show results only after submit and not loading */}
       {hasSubmitted && !loading && result && (
-        <Box bg={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.700'} p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.400'} width="100%" maxW="700px" mx="auto" mt={8} fontFamily="'Lato', Helvetica, Arial, sans-serif" color="white">
+        <Box 
+          bg={getBackgroundColor()} 
+          p={8} 
+          borderRadius="lg" 
+          boxShadow="md" 
+          border="1px solid" 
+          borderColor={getBorderColor()} 
+          width="100%" 
+          maxW="700px" 
+          mx="auto" 
+          mt={8} 
+          fontFamily="'Lato', Helvetica, Arial, sans-serif" 
+          color="white"
+        >
           <Stack spacing={8} align="center" width="100%">
             {/* Multi-page results */}
             {resultsPage === 0 && (
