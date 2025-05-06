@@ -17,7 +17,7 @@ const theme = extendTheme({
     }
   },
   fonts: {
-    heading: "'Fjalla One', Helvetica, Arial, sans-serif",
+    heading: "Futura, Helvetica, Arial, sans-serif",
     body: "'Lato', Helvetica, Arial, sans-serif",
   },
 })
@@ -127,7 +127,7 @@ function App() {
             as="h1"
             size="xl"
             color="white"
-            fontFamily="'Fjalla One', Helvetica, Arial, sans-serif"
+            fontFamily="Futura, Helvetica, Arial, sans-serif"
             fontWeight="extrabold"
             letterSpacing="tight"
             mt={{ base: 2, md: 4 }}

@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent, useEffect } from 'react'
 import {
   Box,
   Button,
@@ -34,6 +34,7 @@ import {
 } from '@chakra-ui/react'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { keyframes } from '@emotion/react'
+import Confetti from 'react-confetti'
 
 interface CalculationResult {
   totalGels: number
@@ -179,20 +180,27 @@ const MarathonCalculator = () => {
   const [result, setResult] = useState<CalculationResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [resultsPage, setResultsPage] = useState(0)
+  const [favoriteArtist, setFavoriteArtist] = useState('')
+  const [showConfetti, setShowConfetti] = useState(false)
 
   const calculateGelStrategy = () => {
     setLoading(true)
     setHasSubmitted(true)
     setTimeout(() => {
-      if (!targetTime || !weight) {
+      if (!targetTime || !weight || !weeklyMileage || !peakMileage || !homeCity) {
         alert('Please fill in all fields')
         setLoading(false)
+        setHasSubmitted(false)
+        setResultsPage(0)
         return
       }
       const [hours, minutes] = targetTime.split(':').map(Number)
       if (isNaN(hours) || isNaN(minutes)) {
         alert('Please enter time in HH:MM format (e.g., 04:00)')
         setLoading(false)
+        setHasSubmitted(false)
+        setResultsPage(0)
         return
       }
       const totalMinutes = (hours * 60) + minutes
@@ -202,6 +210,8 @@ const MarathonCalculator = () => {
       if (isNaN(weightKg)) {
         alert('Please enter a valid number for weight')
         setLoading(false)
+        setHasSubmitted(false)
+        setResultsPage(0)
         return
       }
       const baseGelsPerHour = 2
@@ -250,10 +260,171 @@ const MarathonCalculator = () => {
       }
       setResult(result)
       setLoading(false)
+      if (isUngSchlippoFavorite(favoriteArtist)) {
+        setShowConfetti(true)
+      } else {
+        setShowConfetti(false)
+      }
     }, 900)
   }
 
-  const ThreeDayOverview = () => {
+  // Helper: Suggest a classic Danish artist based on favoriteArtist
+  function getDanishArtistSuggestion(fav: string) {
+    const randomFallbacks = [
+      {
+        name: 'Kim Larsen',
+        albums: [
+          { title: 'Midt Om Natten', url: 'https://music.apple.com/dk/album/midt-om-natten/1440838762' },
+          { title: 'Værsgo', url: 'https://music.apple.com/dk/album/v%C3%A6rsgo/1440838761' },
+          { title: "Gasolin' 3", url: 'https://music.apple.com/dk/album/gasolin-3/1440838757' },
+        ]
+      },
+      {
+        name: 'Anne Linnet',
+        albums: [
+          { title: 'Barndommens Gade', url: 'https://music.apple.com/dk/album/barndommens-gade/1440838780' },
+          { title: 'Jeg Er Jo Lige Her', url: 'https://music.apple.com/dk/album/jeg-er-jo-lige-her/1440838781' },
+          { title: 'Min Sang', url: 'https://music.apple.com/dk/album/min-sang/1440838782' },
+        ]
+      },
+      {
+        name: 'TV-2',
+        albums: [
+          { title: 'Nærmest Lykkelig', url: 'https://music.apple.com/dk/album/n%C3%A6rmest-lykkelig/1440838776' },
+          { title: 'Fantastiske Toyota', url: 'https://music.apple.com/dk/album/fantastiske-toyota/1440838777' },
+          { title: 'Verden Er Vidunderlig', url: 'https://music.apple.com/dk/album/verden-er-vidunderlig/1440838778' },
+        ]
+      },
+      {
+        name: "Gasolin'",
+        albums: [
+          { title: "Gasolin' 3", url: 'https://music.apple.com/dk/album/gasolin-3/1440838757' },
+          { title: 'Live i Skandinavien', url: 'https://music.apple.com/dk/album/live-i-skandinavien/1440838759' },
+          { title: 'Efter Endnu En Dag', url: 'https://music.apple.com/dk/album/efter-endnu-en-dag/1440838758' },
+        ]
+      },
+    ];
+    if (!fav) return randomFallbacks[0];
+    const lower = fav.toLowerCase();
+    // Direct artist swaps
+    if (lower.includes('gili')) {
+      return {
+        name: 'L.O.C.',
+        albums: [
+          { title: 'Inkarneret', url: 'https://music.apple.com/dk/album/inkarneret/1440838783' },
+          { title: 'Melankolia / XXX Couture', url: 'https://music.apple.com/dk/album/melankolia-xxx-couture/1440838784' },
+          { title: 'Prestige, Paranoia, Persona Vol. 1', url: 'https://music.apple.com/dk/album/prestige-paranoia-persona-vol-1/1440838785' },
+        ]
+      }
+    }
+    if (lower.includes('mø') || lower.includes('mo') || lower.includes('moe')) {
+      return {
+        name: 'Anne Linnet',
+        albums: [
+          { title: 'Barndommens Gade', url: 'https://music.apple.com/dk/album/barndommens-gade/1440838780' },
+          { title: 'Jeg Er Jo Lige Her', url: 'https://music.apple.com/dk/album/jeg-er-jo-lige-her/1440838781' },
+          { title: 'Min Sang', url: 'https://music.apple.com/dk/album/min-sang/1440838782' },
+        ]
+      }
+    }
+    if (lower.includes('ung schlippo')) {
+      return {
+        name: 'Johnson',
+        albums: [
+          { title: 'Det Passer', url: 'https://music.apple.com/dk/album/det-passer/1440838786' },
+          { title: 'Alt Mit Shit', url: 'https://music.apple.com/dk/album/alt-mit-shit/1440838787' },
+          { title: 'Bawler Hele Dagen', url: 'https://music.apple.com/dk/album/bawler-hele-dagen/1440838788' },
+        ]
+      }
+    }
+    if (lower.includes('suspekt')) {
+      return {
+        name: 'Gili',
+        albums: [
+          { title: 'Carnival', url: 'https://music.apple.com/dk/album/carnival/1440838789' },
+          { title: 'Vors', url: 'https://music.apple.com/dk/album/vors/1440838790' },
+          { title: 'Euro Connection', url: 'https://music.apple.com/dk/album/euro-connection/1440838791' },
+        ]
+      }
+    }
+    if (lower.includes('aqua')) {
+      return {
+        name: 'MØ',
+        albums: [
+          { title: 'No Mythologies to Follow', url: 'https://music.apple.com/dk/album/no-mythologies-to-follow/1440838792' },
+          { title: 'Forever Neverland', url: 'https://music.apple.com/dk/album/forever-neverland/1436075652' },
+          { title: 'Motordrome', url: 'https://music.apple.com/dk/album/motordrome/1590035697' },
+        ]
+      }
+    }
+    if (lower.includes('loc')) {
+      return {
+        name: 'Gili',
+        albums: [
+          { title: 'Carnival', url: 'https://music.apple.com/dk/album/carnival/1440838789' },
+          { title: 'Vors', url: 'https://music.apple.com/dk/album/vors/1440838790' },
+          { title: 'Euro Connection', url: 'https://music.apple.com/dk/album/euro-connection/1440838791' },
+        ]
+      }
+    }
+    if (lower.includes('johnson')) {
+      return {
+        name: 'Ung Schlippo',
+        albums: [
+          { title: 'Schlippo Tape Vol. 1', url: 'https://music.apple.com/dk/album/schlippo-tape-vol-1/1701234567' },
+          { title: 'Schlippo Tape Vol. 2', url: 'https://music.apple.com/dk/album/schlippo-tape-vol-2/1701234568' },
+          { title: 'Schlippo Tape Vol. 3', url: 'https://music.apple.com/dk/album/schlippo-tape-vol-3/1701234569' },
+        ]
+      }
+    }
+    // Genre/keyword logic
+    if (lower.includes('pop') || lower.includes('dance')) {
+      return {
+        name: 'Aqua',
+        albums: [
+          { title: 'Aquarium', url: 'https://music.apple.com/dk/album/aquarium/1440838765' },
+          { title: 'Aquarius', url: 'https://music.apple.com/dk/album/aquarius/1440838766' },
+          { title: 'Megalomania', url: 'https://music.apple.com/dk/album/megalomania/1440838767' },
+        ]
+      }
+    }
+    if (lower.includes('rock') || lower.includes('guitar')) {
+      return randomFallbacks[3]; // Gasolin'
+    }
+    if (lower.includes('jazz')) {
+      return {
+        name: 'Niels-Henning Ørsted Pedersen',
+        albums: [
+          { title: 'Jaywalkin', url: 'https://music.apple.com/dk/album/jaywalkin/1440838770' },
+          { title: 'Duo', url: 'https://music.apple.com/dk/album/duo/1440838771' },
+          { title: 'The Eternal Traveller', url: 'https://music.apple.com/dk/album/the-eternal-traveller/1440838772' },
+        ]
+      }
+    }
+    if (lower.includes('electronic') || lower.includes('techno')) {
+      return {
+        name: 'Trentemøller',
+        albums: [
+          { title: 'The Last Resort', url: 'https://music.apple.com/dk/album/the-last-resort/1440838773' },
+          { title: 'Into the Great Wide Yonder', url: 'https://music.apple.com/dk/album/into-the-great-wide-yonder/1440838774' },
+          { title: 'Fixion', url: 'https://music.apple.com/dk/album/fixion/1440838775' },
+        ]
+      }
+    }
+    if (lower.includes('indie') || lower.includes('alternative')) {
+      return randomFallbacks[2]; // TV-2
+    }
+    // Fallback: random classic
+    return randomFallbacks[Math.floor(Math.random() * randomFallbacks.length)];
+  }
+
+  // Helper: is Ung Schlippo favorite
+  function isUngSchlippoFavorite(fav: string) {
+    return fav.trim().toLowerCase().replace(/\s+/g, '') === 'ungschlippo';
+  }
+
+  // Extract day content from ThreeDayOverview
+  const ThursdayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
     const carbSources = [
@@ -274,132 +445,175 @@ const MarathonCalculator = () => {
       'Alcohol',
       'Large amounts of raw vegetables',
     ];
-    // Coffee and party recs
+    const coffeeRecs = coffeeShops.slice(0, coffeeLove);
+    const partyRecs = barList.slice(0, partyLove);
+    return (
+      <Box mt={8} color="white">
+        <Text fontSize="xl" fontWeight="bold" mb={4} fontFamily="Futura, Helvetica, Arial, sans-serif">Thursday (4 days out)</Text>
+        <Box bg="red.50" borderLeft="4px solid #E53E3E" p={3} my={2} borderRadius="md" color="black">
+          <Text fontWeight="bold" color="red.700">LØBEREN EXPO OPENS: 14:00 – 19:00</Text>
+          <Text color="red.700">Kick off the Expo! Be the first to see the world's biggest brands, their newest products, and meet running experts. Get the official race newspaper and limited-edition merchandise.</Text>
+        </Box>
+        <BlueBox>
+          <Text fontWeight="bold">Coffee tip:</Text>
+          <Text>{coffeeRecs[0]}</Text>
+        </BlueBox>
+        <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
+        <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
+        <Text mb={1}>• <b>Include Maurten:</b> Start sipping Maurten Drink Mix 160/320 with meals and snacks</Text>
+        <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
+        <Text mb={1}>• <b>Shakeout run:</b> Easy 20–40 min run in the morning or midday</Text>
+        <Text mb={1}>• <b>Sleep:</b> Aim for 8+ hours, keep a regular bedtime</Text>
+        {partyLove > 0 && (
+          <BlueBox>
+            <Text fontWeight="bold">Bar tip:</Text>
+            <Text>{partyRecs[0]}</Text>
+          </BlueBox>
+        )}
+      </Box>
+    );
+  };
+  const FridayOverview = () => {
+    if (!result) return null;
+    const { carbLoading } = result;
+    const carbSources = [
+      'White rice',
+      'Pasta',
+      'White bread',
+      'Potatoes',
+      'Bananas',
+      'Low-fiber cereals (e.g., Frosties)',
+      'Sports drinks (e.g., Maurten Drink Mix)',
+      'Fruit juice',
+      'Jam/honey',
+    ];
+    const foodsToAvoid = [
+      'High-fiber foods (brown bread, beans, lentils)',
+      'Fatty foods (fried, creamy sauces)',
+      'Spicy foods',
+      'Alcohol',
+      'Large amounts of raw vegetables',
+    ];
+    const coffeeRecs = coffeeShops.slice(0, coffeeLove);
+    const partyRecs = barList.slice(0, partyLove);
+    return (
+      <Box mt={8} color="white">
+        <Text fontSize="xl" fontWeight="bold" mb={4} fontFamily="Futura, Helvetica, Arial, sans-serif">Friday (3 days out)</Text>
+        <Box bg="red.50" borderLeft="4px solid #E53E3E" p={3} my={2} borderRadius="md" color="black">
+          <Text fontWeight="bold" color="red.700">LØBEREN EXPO OPENS: 12:00 – 19:00</Text>
+          <Text color="red.700">Experience the huge running universe. Merch. Newspaper. The biggest and best brands. The party continues.</Text>
+          <Text fontWeight="bold" mt={2} color="red.700">SHAKEOUT RUN & CPH MARATHON: 17:00–18:00</Text>
+          <Text color="red.700">Everyone is welcome! Get a unique insight into the course, the thoughts behind it, and cool spots along the route. Different pace groups, organized with Sparta. After the run: alcohol-free beer from Erdinger, sausage rolls, and Red Bull. Free, but requires sign up in the Facebook event.</Text>
+        </Box>
+        {coffeeLove > 1 && (
+          <BlueBox>
+            <Text fontWeight="bold">Coffee tip:</Text>
+            <Text>{coffeeRecs[1 % coffeeRecs.length]}</Text>
+          </BlueBox>
+        )}
+        <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
+        <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
+        <Text mb={1}>• <b>Include Maurten:</b> Use Maurten Drink Mix with snacks, and consider a Maurten GEL 100 after your shakeout run</Text>
+        <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
+        <Text mb={1}>• <b>Shakeout run:</b> Easy 15–30 min run, ideally in the morning or join the Expo shakeout at 17:00</Text>
+        <Text mb={1}>• <b>Sleep:</b> Prioritize 8+ hours, wind down early</Text>
+        {partyLove > 1 && (
+          <BlueBox>
+            <Text fontWeight="bold">Bar tip:</Text>
+            <Text>{partyRecs[1 % partyRecs.length]}</Text>
+          </BlueBox>
+        )}
+      </Box>
+    );
+  };
+  const SaturdayOverview = () => {
+    if (!result) return null;
+    const { carbLoading } = result;
+    const carbSources = [
+      'White rice',
+      'Pasta',
+      'White bread',
+      'Potatoes',
+      'Bananas',
+      'Low-fiber cereals (e.g., Frosties)',
+      'Sports drinks (e.g., Maurten Drink Mix)',
+      'Fruit juice',
+      'Jam/honey',
+    ];
+    const foodsToAvoid = [
+      'High-fiber foods (brown bread, beans, lentils)',
+      'Fatty foods (fried, creamy sauces)',
+      'Spicy foods',
+      'Alcohol',
+      'Large amounts of raw vegetables',
+    ];
+    const coffeeRecs = coffeeShops.slice(0, coffeeLove);
+    const partyRecs = barList.slice(0, partyLove);
+    return (
+      <Box mt={8} color="white">
+        <Text fontSize="xl" fontWeight="bold" mb={4} fontFamily="Futura, Helvetica, Arial, sans-serif">Saturday (2 days out)</Text>
+        <Box bg="red.50" borderLeft="4px solid #E53E3E" p={3} my={2} borderRadius="md" color="black">
+          <Text fontWeight="bold" color="red.700">LØBEREN EXPO OPENS: 10:00 – 19:00</Text>
+          <Text color="red.700">Come and experience the huge running universe!</Text>
+          <Text fontWeight="bold" mt={2} color="red.700">FINAL BIB PICK-UP: 17:00 – 19:00</Text>
+          <Text color="red.700">The Expo closes at 19:00. If you haven't picked up your race bib, make sure to do so!</Text>
+        </Box>
+        {coffeeLove > 2 && (
+          <BlueBox>
+            <Text fontWeight="bold">Coffee tip:</Text>
+            <Text>{coffeeRecs[2 % coffeeRecs.length]}</Text>
+          </BlueBox>
+        )}
+        <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
+        <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
+        <Text mb={1}>• <b>Include Maurten:</b> Use Maurten Drink Mix and snacks, keep fueling up</Text>
+        <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
+        <Text mb={1}>• <b>Shakeout run:</b> Optional 10–20 min jog, keep it easy</Text>
+        <Text mb={1}>• <b>Sleep:</b> Prioritize 8+ hours, get to bed early</Text>
+        {partyLove > 2 && (
+          <BlueBox>
+            <Text fontWeight="bold">Bar tip:</Text>
+            <Text>{partyRecs[2 % partyRecs.length]}</Text>
+          </BlueBox>
+        )}
+      </Box>
+    );
+  };
+  const SundayOverview = () => {
+    if (!result) return null;
+    const { carbLoading } = result;
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
     const showAfterparty = partyLove > 1;
-    const ExpoBox = ({ children }: { children: React.ReactNode }) => (
-      <Box bg="red.50" borderLeft="4px solid #E53E3E" p={3} my={2} borderRadius="md" color="black">
-        {children}
-      </Box>
-    );
     return (
       <Box mt={8} color="white">
-        <Text fontSize="xl" fontWeight="bold" mb={4}>
-          3-Day Race Week Overview
-        </Text>
-        <Stack spacing={6}>
-          {/* Thursday */}
-          <Box>
-            <Text fontSize="lg" fontWeight="semibold" mb={2} color="white">Thursday (4 days out)</Text>
-            <ExpoBox>
-              <Text fontWeight="bold" color="red.700">LØBEREN EXPO OPENS: 14:00 – 19:00</Text>
-              <Text color="red.700">Kick off the Expo! Be the first to see the world's biggest brands, their newest products, and meet running experts. Get the official race newspaper and limited-edition merchandise.</Text>
-            </ExpoBox>
-            <BlueBox>
-              <Text fontWeight="bold">Coffee tip:</Text>
-              <Text>{coffeeRecs[0]}</Text>
-            </BlueBox>
-            <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
-            <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
-            <Text mb={1}>• <b>Include Maurten:</b> Start sipping Maurten Drink Mix 160/320 with meals and snacks</Text>
-            <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
-            <Text mb={1}>• <b>Shakeout run:</b> Easy 20–40 min run in the morning or midday</Text>
-            <Text mb={1}>• <b>Sleep:</b> Aim for 8+ hours, keep a regular bedtime</Text>
-            {partyLove > 0 && (
-              <BlueBox>
-                <Text fontWeight="bold">Bar tip:</Text>
-                <Text>{partyRecs[0]}</Text>
-              </BlueBox>
-            )}
-          </Box>
-          {/* Friday */}
-          <Box>
-            <Text fontSize="lg" fontWeight="semibold" mb={2} color="white">Friday (3 days out)</Text>
-            <ExpoBox>
-              <Text fontWeight="bold" color="red.700">LØBEREN EXPO OPENS: 12:00 – 19:00</Text>
-              <Text color="red.700">Experience the huge running universe. Merch. Newspaper. The biggest and best brands. The party continues.</Text>
-              <Text fontWeight="bold" mt={2} color="red.700">SHAKEOUT RUN & CPH MARATHON: 17:00–18:00</Text>
-              <Text color="red.700">Everyone is welcome! Get a unique insight into the course, the thoughts behind it, and cool spots along the route. Different pace groups, organized with Sparta. After the run: alcohol-free beer from Erdinger, sausage rolls, and Red Bull. Free, but requires sign up in the Facebook event.</Text>
-            </ExpoBox>
-            {coffeeLove > 1 && (
-              <BlueBox>
-                <Text fontWeight="bold">Coffee tip:</Text>
-                <Text>{coffeeRecs[1 % coffeeRecs.length]}</Text>
-              </BlueBox>
-            )}
-            <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
-            <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
-            <Text mb={1}>• <b>Include Maurten:</b> Use Maurten Drink Mix with snacks, and consider a Maurten GEL 100 after your shakeout run</Text>
-            <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
-            <Text mb={1}>• <b>Shakeout run:</b> Easy 15–30 min run, ideally in the morning or join the Expo shakeout at 17:00</Text>
-            <Text mb={1}>• <b>Sleep:</b> Prioritize 8+ hours, wind down early</Text>
-            {partyLove > 1 && (
-              <BlueBox>
-                <Text fontWeight="bold">Bar tip:</Text>
-                <Text>{partyRecs[1 % partyRecs.length]}</Text>
-              </BlueBox>
-            )}
-          </Box>
-          {/* Saturday */}
-          <Box>
-            <Text fontSize="lg" fontWeight="semibold" mb={2} color="white">Saturday (2 days out)</Text>
-            <ExpoBox>
-              <Text fontWeight="bold" color="red.700">LØBEREN EXPO OPENS: 10:00 – 19:00</Text>
-              <Text color="red.700">Come and experience the huge running universe!</Text>
-              <Text fontWeight="bold" mt={2} color="red.700">FINAL BIB PICK-UP: 17:00 – 19:00</Text>
-              <Text color="red.700">The Expo closes at 19:00. If you haven't picked up your race bib, make sure to do so!</Text>
-            </ExpoBox>
-            {coffeeLove > 2 && (
-              <BlueBox>
-                <Text fontWeight="bold">Coffee tip:</Text>
-                <Text>{coffeeRecs[2 % coffeeRecs.length]}</Text>
-              </BlueBox>
-            )}
-            <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
-            <Text mb={1}>• <b>Good carb sources:</b> {carbSources.join(', ')}</Text>
-            <Text mb={1}>• <b>Include Maurten:</b> Use Maurten Drink Mix and snacks, keep fueling up</Text>
-            <Text mb={1}>• <b>Foods to avoid:</b> {foodsToAvoid.join(', ')}</Text>
-            <Text mb={1}>• <b>Shakeout run:</b> Optional 10–20 min jog, keep it easy</Text>
-            <Text mb={1}>• <b>Sleep:</b> Prioritize 8+ hours, get to bed early</Text>
-            {partyLove > 2 && (
-              <BlueBox>
-                <Text fontWeight="bold">Bar tip:</Text>
-                <Text>{partyRecs[2 % partyRecs.length]}</Text>
-              </BlueBox>
-            )}
-          </Box>
-          {/* Sunday */}
-          <Box>
-            <Text fontSize="lg" fontWeight="semibold" mb={2} color="white">Sunday (Race Day)</Text>
-            <Text mb={1} color="white">• <b>Carb target (breakfast):</b> {carbLoading.breakfastCarbs}g ({carbLoading.breakfastCalories} kcal) 3–4 hours before start</Text>
-            <Text mb={1} color="white">• <b>Good carb sources:</b> White bread with jam/honey, Frosties with milk, bananas, Maurten Drink Mix, sports drink</Text>
-            <Text mb={1} color="white">• <b>Include Maurten:</b> Maurten Drink Mix or GEL 100 as part of breakfast and pre-race hydration</Text>
-            <Text mb={1} color="white">• <b>Foods to avoid:</b> High-fiber, fatty, or spicy foods; dairy if sensitive</Text>
-            <Text mb={1} color="white">• <b>Shakeout:</b> Optional 5–10 min jog and drills 2–3 hours before start</Text>
-            <Text mb={1} color="white">• <b>Sleep:</b> Don't stress if you sleep less, but try to rest and stay off your feet</Text>
-            {coffeeLove > 3 && (
-              <BlueBox>
-                <Text fontWeight="bold">Coffee tip:</Text>
-                <Text>{coffeeRecs[3 % coffeeRecs.length]}</Text>
-              </BlueBox>
-            )}
-            {partyLove > 3 && (
-              <BlueBox>
-                <Text fontWeight="bold">Bar tip:</Text>
-                <Text>{partyRecs[3 % partyRecs.length]}</Text>
-              </BlueBox>
-            )}
-            {showAfterparty && (
-              <BlueBox>
-                <Text fontWeight="bold">Afterparty:</Text>
-                <Text>
-                  {nbroAfterparty.name} at {nbroAfterparty.place}, {nbroAfterparty.time} (<a href="{nbroAfterparty.url}" target="_blank" rel="noopener noreferrer" style={{ color: 'white', textDecoration: 'underline' }}>details</a>)
-                </Text>
-              </BlueBox>
-            )}
-          </Box>
-        </Stack>
+        <Text fontSize="xl" fontWeight="bold" mb={4} fontFamily="Futura, Helvetica, Arial, sans-serif">Sunday (Race Day)</Text>
+        <Text mb={1} color="white">• <b>Carb target (breakfast):</b> {carbLoading.breakfastCarbs}g ({carbLoading.breakfastCalories} kcal) 3–4 hours before start</Text>
+        <Text mb={1} color="white">• <b>Good carb sources:</b> White bread with jam/honey, Frosties with milk, bananas, Maurten Drink Mix, sports drink</Text>
+        <Text mb={1} color="white">• <b>Include Maurten:</b> Maurten Drink Mix or GEL 100 as part of breakfast and pre-race hydration</Text>
+        <Text mb={1} color="white">• <b>Foods to avoid:</b> High-fiber, fatty, or spicy foods; dairy if sensitive</Text>
+        <Text mb={1} color="white">• <b>Shakeout:</b> Optional 5–10 min jog and drills 2–3 hours before start</Text>
+        <Text mb={1} color="white">• <b>Sleep:</b> Don't stress if you sleep less, but try to rest and stay off your feet</Text>
+        {coffeeLove > 3 && (
+          <BlueBox>
+            <Text fontWeight="bold">Coffee tip:</Text>
+            <Text>{coffeeRecs[3 % coffeeRecs.length]}</Text>
+          </BlueBox>
+        )}
+        {partyLove > 3 && (
+          <BlueBox>
+            <Text fontWeight="bold">Bar tip:</Text>
+            <Text>{partyRecs[3 % partyRecs.length]}</Text>
+          </BlueBox>
+        )}
+        {showAfterparty && (
+          <BlueBox>
+            <Text fontWeight="bold">Afterparty:</Text>
+            <Text>
+              {nbroAfterparty.name} at {nbroAfterparty.place}, {nbroAfterparty.time} (<a href="{nbroAfterparty.url}" target="_blank" rel="noopener noreferrer" style={{ color: 'white', textDecoration: 'underline' }}>details</a>)
+            </Text>
+          </BlueBox>
+        )}
       </Box>
     );
   };
@@ -513,18 +727,32 @@ const MarathonCalculator = () => {
     </Flex>
   )
 
+  // On first results page, hide confetti after render
+  useEffect(() => {
+    if (resultsPage > 0 && showConfetti) {
+      setShowConfetti(false)
+    }
+  }, [resultsPage, showConfetti])
+
   return (
-    <Flex direction="column" align="center" justify="center" width="100%" minH="60vh" p={4} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <Flex direction="column" align="center" justify="center" width="100%" minH="60vh" p={4} fontFamily="'Lato', Helvetica, Arial, sans-serif" bg={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.700'}>
+      {showConfetti && <Confetti />}
       {/* Show animation while loading */}
       {loading && <MathLoadingAnimation />}
       {/* Show form only if not submitted and not loading */}
       {(!hasSubmitted && !loading) && (
-        <Box bg="red.700" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="red.400" width="100%" maxW="520px" mx="auto" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
+        <Box bg={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.700'} p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.400'} width="100%" maxW="520px" mx="auto" fontFamily="'Lato', Helvetica, Arial, sans-serif">
+          {/* Inspiration disclaimer */}
+          <Box mb={6}>
+            <Text color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif" fontSize="md" textAlign="center">
+              This calculator is just for inspiration – there are many different philosophies on marathon prep and nutrition.
+            </Text>
+          </Box>
           <WeatherExplanation />
           <Stack spacing={8} width="100%">
             {/* Running Details Section */}
             <Box mb={2}>
-              <Text fontSize="xl" fontWeight="bold" mb={2} color="white" fontFamily="'Fjalla One', Helvetica, Arial, sans-serif">Running Details</Text>
+              <Text fontSize="xl" fontWeight="bold" mb={2} color="white" fontFamily="Futura, Helvetica, Arial, sans-serif">Running Details</Text>
               <Grid templateColumns="1fr" gap={6} width="100%">
                 <GridItem>
                   <FormControl isRequired>
@@ -602,7 +830,7 @@ const MarathonCalculator = () => {
             </Box>
             {/* Social Details Section */}
             <Box mb={2}>
-              <Text fontSize="xl" fontWeight="bold" mb={2} color="white" fontFamily="'Fjalla One', Helvetica, Arial, sans-serif">Social Details</Text>
+              <Text fontSize="xl" fontWeight="bold" mb={2} color="white" fontFamily="Futura, Helvetica, Arial, sans-serif">Social Details</Text>
               <Grid templateColumns="1fr" gap={6} width="100%">
                 <GridItem>
                   <FormControl isRequired>
@@ -681,6 +909,23 @@ const MarathonCalculator = () => {
                     </Slider>
                   </FormControl>
                 </GridItem>
+                <GridItem>
+                  <FormControl>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Your favorite artist</FormLabel>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Beyoncé"
+                      value={favoriteArtist}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setFavoriteArtist(e.target.value)}
+                      bg="white"
+                      color="red.700"
+                      borderColor="red.300"
+                      _placeholder={{ color: 'red.300' }}
+                      width="100%"
+                      fontFamily="'Lato', Helvetica, Arial, sans-serif"
+                    />
+                  </FormControl>
+                </GridItem>
               </Grid>
             </Box>
             {/* Nutrition Brand and Button */}
@@ -703,66 +948,155 @@ const MarathonCalculator = () => {
       )}
       {/* Show results only after submit and not loading */}
       {hasSubmitted && !loading && result && (
-        <Box bg="red.700" p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor="red.400" width="100%" maxW="700px" mx="auto" mt={8} fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" color="white">
+        <Box bg={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.700'} p={8} borderRadius="lg" boxShadow="md" border="1px solid" borderColor={isUngSchlippoFavorite(favoriteArtist) ? '#FFD700' : 'red.400'} width="100%" maxW="700px" mx="auto" mt={8} fontFamily="'Lato', Helvetica, Arial, sans-serif" color="white">
           <Stack spacing={8} align="center" width="100%">
-            <TravelInfo city={homeCity} />
-            <CityComparison city={homeCity} />
-            <WeatherForecast />
-            <ThreeDayOverview />
-            <RaceDayBreakfastSection />
-            <Divider my={6} borderColor="gray.200" />
-            {/* Gel strategy section now also Helvetica */}
-            <Box width="100%" color="white">
-              <Alert 
-                status="success" 
-                mb={4} 
-                variant="subtle"
-                borderRadius="md"
-                color="white"
-                bg="red.500"
-              >
-                <AlertIcon color="white" />
-                <span style={{ color: 'white' }}>
-                  You will need {result.totalGels} gels in total ({result.regularGels} regular {brand} {brand === 'Maurten' ? 'GEL 100' : 'PowerGel Original'} and {result.caffeineGels} {brand} {brand === 'Maurten' ? 'CAF 100' : 'PowerGel Hydro Caffeine'})
-                </span>
-              </Alert>
-              <Text fontSize="lg" mb={2} color="white">
-                Recommended hydration: {result.hydrationPerHour}ml per hour
-              </Text>
-              <Divider my={4} borderColor="gray.200" />
-              <Text fontSize="lg" fontWeight="bold" mb={2} color="white">
-                Gel Timeline:
-              </Text>
-              <Stack spacing={2}>
-                {result.timeline.map((time, index) => (
-                  <Text 
-                    key={index} 
-                    color="white" 
-                    fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+            {/* Multi-page results */}
+            {resultsPage === 0 && (
+              <>
+                <TravelInfo city={homeCity} />
+                <CityComparison city={homeCity} />
+                <WeatherForecast />
+                {/* Danish artist suggestion */}
+                <BlueBox>
+                  {(() => {
+                    const suggestion = getDanishArtistSuggestion(favoriteArtist);
+                    return (
+                      <>
+                        <Text fontFamily="Futura, Helvetica, Arial, sans-serif" fontWeight="bold" fontSize="lg" mb={1} color="white">
+                          If you like <b>{favoriteArtist || 'many artists'}</b>, check out <b>{suggestion.name}</b>!
+                        </Text>
+                        <Text fontFamily="'Lato', Helvetica, Arial, sans-serif" color="white" mb={1}>
+                          Here are three great albums to try on Apple Music:
+                        </Text>
+                        <Stack spacing={1}>
+                          {suggestion.albums.map(album => (
+                            <a key={album.url} href={album.url} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'underline', fontFamily: 'Lato, Helvetica, Arial, sans-serif' }}>{album.title}</a>
+                          ))}
+                        </Stack>
+                      </>
+                    );
+                  })()}
+                </BlueBox>
+                <Button mt={8} colorScheme="whiteAlpha" variant="solid" onClick={() => setResultsPage(1)} fontFamily="Futura, Helvetica, Arial, sans-serif" color="red.700" bg="white" _hover={{ bg: 'red.200' }}>
+                  Next: Thursday
+                </Button>
+              </>
+            )}
+            {resultsPage === 1 && (
+              <>
+                <ThursdayOverview />
+                <Flex mt={8} width="100%" justify="space-between">
+                  <Button colorScheme="whiteAlpha" variant="outline" onClick={() => setResultsPage(0)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="white" borderColor="white" _hover={{ bg: 'red.600' }}>
+                    Back
+                  </Button>
+                  <Button colorScheme="whiteAlpha" variant="solid" onClick={() => setResultsPage(2)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="red.700" bg="white" _hover={{ bg: 'red.200' }}>
+                    Next: Friday
+                  </Button>
+                </Flex>
+              </>
+            )}
+            {resultsPage === 2 && (
+              <>
+                <FridayOverview />
+                <Flex mt={8} width="100%" justify="space-between">
+                  <Button colorScheme="whiteAlpha" variant="outline" onClick={() => setResultsPage(1)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="white" borderColor="white" _hover={{ bg: 'red.600' }}>
+                    Back
+                  </Button>
+                  <Button colorScheme="whiteAlpha" variant="solid" onClick={() => setResultsPage(3)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="red.700" bg="white" _hover={{ bg: 'red.200' }}>
+                    Next: Saturday
+                  </Button>
+                </Flex>
+              </>
+            )}
+            {resultsPage === 3 && (
+              <>
+                <SaturdayOverview />
+                <Flex mt={8} width="100%" justify="space-between">
+                  <Button colorScheme="whiteAlpha" variant="outline" onClick={() => setResultsPage(2)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="white" borderColor="white" _hover={{ bg: 'red.600' }}>
+                    Back
+                  </Button>
+                  <Button colorScheme="whiteAlpha" variant="solid" onClick={() => setResultsPage(4)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="red.700" bg="white" _hover={{ bg: 'red.200' }}>
+                    Next: Sunday
+                  </Button>
+                </Flex>
+              </>
+            )}
+            {resultsPage === 4 && (
+              <>
+                <SundayOverview />
+                <Flex mt={8} width="100%" justify="space-between">
+                  <Button colorScheme="whiteAlpha" variant="outline" onClick={() => setResultsPage(3)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="white" borderColor="white" _hover={{ bg: 'red.600' }}>
+                    Back
+                  </Button>
+                  <Button colorScheme="whiteAlpha" variant="solid" onClick={() => setResultsPage(5)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="red.700" bg="white" _hover={{ bg: 'red.200' }}>
+                    Next: Race Day Details
+                  </Button>
+                </Flex>
+              </>
+            )}
+            {resultsPage === 5 && (
+              <>
+                <RaceDayBreakfastSection />
+                <Divider my={6} borderColor="gray.200" />
+                {/* Gel strategy section now also Fjalla One/Lato */}
+                <Box width="100%" color="white">
+                  <Alert 
+                    status="success" 
+                    mb={4} 
+                    variant="subtle"
+                    borderRadius="md"
+                    color="white"
+                    bg="red.500"
                   >
-                    {time}
+                    <AlertIcon color="white" />
+                    <span style={{ color: 'white' }}>
+                      You will need {result.totalGels} gels in total ({result.regularGels} regular {brand} {brand === 'Maurten' ? 'GEL 100' : 'PowerGel Original'} and {result.caffeineGels} {brand} {brand === 'Maurten' ? 'CAF 100' : 'PowerGel Hydro Caffeine'})
+                    </span>
+                  </Alert>
+                  <Text fontSize="lg" mb={2} color="white">
+                    Recommended hydration: {result.hydrationPerHour}ml per hour
                   </Text>
-                ))}
-              </Stack>
-            </Box>
-            {/* Coffee recommendations in Helvetica */}
-            <Box width="100%" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif">
-              <Divider my={6} borderColor="gray.200" />
-              <Text fontSize="xl" fontWeight="bold" mb={2} color="black">
-                Coffee Recommendations in Copenhagen
-              </Text>
-              <List spacing={2}>
-                {coffeeShops.slice(0, coffeeLove).map((shop) => (
-                  <ListItem key={shop}>
-                    <ListIcon as={CheckCircleIcon} color="red.500" />
-                    {shop}
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-            <Button mt={6} colorScheme="gray" variant="outline" onClick={() => { setHasSubmitted(false); setResult(null); setLoading(false); }}>
-              Recalculate
-            </Button>
+                  <Divider my={4} borderColor="gray.200" />
+                  <Text fontSize="lg" fontWeight="bold" mb={2} color="white" fontFamily="Futura, Helvetica, Arial, sans-serif">
+                    Gel Timeline:
+                  </Text>
+                  <Stack spacing={2}>
+                    {result.timeline.map((time, index) => (
+                      <Text 
+                        key={index} 
+                        color="white" 
+                        fontFamily="'Lato', Helvetica, Arial, sans-serif"
+                      >
+                        {time}
+                      </Text>
+                    ))}
+                  </Stack>
+                </Box>
+                {/* Coffee recommendations in Lato */}
+                <Box width="100%" fontFamily="'Lato', Helvetica, Arial, sans-serif">
+                  <Divider my={6} borderColor="gray.200" />
+                  <Text fontSize="xl" fontWeight="bold" mb={2} color="white" fontFamily="Futura, Helvetica, Arial, sans-serif">
+                    Coffee Recommendations in Copenhagen
+                  </Text>
+                  <List spacing={2} color="white">
+                    {coffeeShops.slice(0, coffeeLove).map((shop) => (
+                      <ListItem key={shop}>
+                        <ListIcon as={CheckCircleIcon} color="red.500" />
+                        {shop}
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+                <Flex mt={8} width="100%" justify="space-between">
+                  <Button colorScheme="whiteAlpha" variant="outline" onClick={() => setResultsPage(4)} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif" color="white" borderColor="white" _hover={{ bg: 'red.600' }}>
+                    Back
+                  </Button>
+                  <Button colorScheme="gray" variant="outline" onClick={() => { setHasSubmitted(false); setResult(null); setLoading(false); setResultsPage(0); }} fontFamily="'Fjalla One', Helvetica, Arial, sans-serif">
+                    Recalculate
+                  </Button>
+                </Flex>
+              </>
+            )}
           </Stack>
         </Box>
       )}
