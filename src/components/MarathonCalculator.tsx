@@ -176,24 +176,16 @@ function getCopenhagenRoute(distanceKm: number) {
 }
 
 // Helper: Suggest distance/intensity based on weekly mileage
-function getWorkoutSuggestion(day: string, weeklyMileage: string) {
-  const mileage = parseInt(weeklyMileage, 10);
+function getWorkoutSuggestion(day: string) {
   let distance = 5, intensity = "easy";
-  if (isNaN(mileage)) return { distance, intensity };
 
   if (day === "Saturday") {
     // Shakeout run logic
-    if (mileage < 40) distance = 3;
-    else if (mileage < 60) distance = 4;
-    else if (mileage < 80) distance = 5;
-    else distance = 6;
+    distance = 4;
     intensity = "very easy";
   } else {
     // Other days: short workout
-    if (mileage < 40) distance = 5;
-    else if (mileage < 60) distance = 6;
-    else if (mileage < 80) distance = 7;
-    else distance = 8;
+    distance = 6;
     intensity = "easy or strides";
   }
   return { distance, intensity };
@@ -205,8 +197,6 @@ const MarathonCalculator = () => {
   const [brand, setBrand] = useState<'Maurten' | 'Powerbar'>('Maurten')
   const [coffeeLove, setCoffeeLove] = useState(3)
   const [partyLove, setPartyLove] = useState(1)
-  const [weeklyMileage, setWeeklyMileage] = useState('')
-  const [peakMileage, setPeakMileage] = useState('')
   const [homeCity, setHomeCity] = useState('')
   const [showTooltip, setShowTooltip] = useState(false)
   const [showPartyTooltip, setShowPartyTooltip] = useState(false)
@@ -216,12 +206,27 @@ const MarathonCalculator = () => {
   const [resultsPage, setResultsPage] = useState(0)
   const [favoriteArtist, setFavoriteArtist] = useState('')
   const [showConfetti, setShowConfetti] = useState(false)
+  const [name, setName] = useState('')
+
+  // Helper function to check if user should get special recommendations
+  const getSpecialRecommendations = () => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('tim rossi') || lowerName.includes('tigertonito')) {
+      return 'white-monster';
+    }
+    if (lowerName.includes('kallebumbum')) {
+      return 'gin';
+    }
+    return null;
+  }
+
+  const specialType = getSpecialRecommendations();
 
   const calculateGelStrategy = () => {
     setLoading(true)
     setHasSubmitted(true)
     setTimeout(() => {
-      if (!targetTime || !weight || !weeklyMileage || !peakMileage || !homeCity) {
+      if (!targetTime || !weight || !homeCity) {
         alert('Please fill in all fields')
         setLoading(false)
         setHasSubmitted(false)
@@ -460,7 +465,7 @@ const MarathonCalculator = () => {
   const ThursdayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
-    const workout = getWorkoutSuggestion("Thursday", weeklyMileage);
+    const workout = getWorkoutSuggestion("Thursday");
     const route = getCopenhagenRoute(workout.distance);
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
@@ -471,16 +476,29 @@ const MarathonCalculator = () => {
           <Text fontWeight="bold" color="red.700">LØBEREN EXPO OPENS: 14:00 – 19:00</Text>
           <Text color="red.700">Kick off the Expo! Be the first to see the world's biggest brands, their newest products, and meet running experts. Get the official race newspaper and limited-edition merchandise.</Text>
         </Box>
-        <BlueBox>
-          <Text fontWeight="bold">Coffee tip:</Text>
-          <Text>{coffeeRecs[0]}</Text>
-        </BlueBox>
+        {specialType === 'white-monster' ? (
+          <BlueBox>
+            <Text fontWeight="bold">Hey {name}, your special recommendation:</Text>
+            <Text>• White Monster Energy Drink (2-3 cans)</Text>
+          </BlueBox>
+        ) : specialType === 'gin' ? (
+          <BlueBox>
+            <Text fontWeight="bold">Hey {name}, your special recommendation:</Text>
+            <Text>• Hendrick's Gin (1 bottle)</Text>
+            <Text>• Tanqueray Gin (1 bottle)</Text>
+          </BlueBox>
+        ) : (
+          <BlueBox>
+            <Text fontWeight="bold">Coffee tip for {name}:</Text>
+            <Text>{coffeeRecs[0]}</Text>
+          </BlueBox>
+        )}
         <Text mb={1}>• <b>Carb target:</b> {carbLoading.dailyCarbs}g ({carbLoading.dailyCalories} kcal) throughout the day</Text>
         <Text mb={1}>• <b>Workout:</b> {workout.distance}km {workout.intensity} run. Suggested route: {route}</Text>
         <Text mb={1}>• <b>Sleep:</b> Aim for 8+ hours, keep a regular bedtime</Text>
         {partyLove > 0 && (
           <BlueBox>
-            <Text fontWeight="bold">Bar tip:</Text>
+            <Text fontWeight="bold">Bar tip for {name}:</Text>
             <Text>{partyRecs[0]}</Text>
           </BlueBox>
         )}
@@ -490,7 +508,7 @@ const MarathonCalculator = () => {
   const FridayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
-    const workout = getWorkoutSuggestion("Friday", weeklyMileage);
+    const workout = getWorkoutSuggestion("Friday");
     const route = getCopenhagenRoute(workout.distance);
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
@@ -524,7 +542,7 @@ const MarathonCalculator = () => {
   const SaturdayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
-    const workout = getWorkoutSuggestion("Saturday", weeklyMileage);
+    const workout = getWorkoutSuggestion("Saturday");
     const route = getCopenhagenRoute(workout.distance);
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
@@ -558,7 +576,7 @@ const MarathonCalculator = () => {
   const SundayOverview = () => {
     if (!result) return null;
     const { carbLoading } = result;
-    const workout = getWorkoutSuggestion("Sunday", weeklyMileage);
+    const workout = getWorkoutSuggestion("Sunday");
     const route = getCopenhagenRoute(workout.distance);
     const coffeeRecs = coffeeShops.slice(0, coffeeLove);
     const partyRecs = barList.slice(0, partyLove);
@@ -733,6 +751,23 @@ const MarathonCalculator = () => {
               <Grid templateColumns="1fr" gap={6} width="100%">
                 <GridItem>
                   <FormControl isRequired>
+                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Your Name</FormLabel>
+                    <Input
+                      type="text"
+                      placeholder="Enter your name"
+                      value={name}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                      bg="white"
+                      color="red.700"
+                      borderColor="red.300"
+                      _placeholder={{ color: 'red.300' }}
+                      width="100%"
+                      fontFamily="'Lato', Helvetica, Arial, sans-serif"
+                    />
+                  </FormControl>
+                </GridItem>
+                <GridItem>
+                  <FormControl isRequired>
                     <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Target Marathon Time (HH:MM)</FormLabel>
                     <Input
                       type="text"
@@ -757,42 +792,6 @@ const MarathonCalculator = () => {
                         value={weight}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setWeight(e.target.value)}
                         placeholder="70"
-                        bg="white"
-                        color="red.700"
-                        borderColor="red.300"
-                        _placeholder={{ color: 'red.300' }}
-                        width="100%"
-                        fontFamily="'Lato', Helvetica, Arial, sans-serif"
-                      />
-                    </NumberInput>
-                  </FormControl>
-                </GridItem>
-                <GridItem>
-                  <FormControl isRequired>
-                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Weekly average mileage (km)</FormLabel>
-                    <NumberInput min={0} max={300} width="100%">
-                      <NumberInputField
-                        value={weeklyMileage}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setWeeklyMileage(e.target.value)}
-                        placeholder="50"
-                        bg="white"
-                        color="red.700"
-                        borderColor="red.300"
-                        _placeholder={{ color: 'red.300' }}
-                        width="100%"
-                        fontFamily="'Lato', Helvetica, Arial, sans-serif"
-                      />
-                    </NumberInput>
-                  </FormControl>
-                </GridItem>
-                <GridItem>
-                  <FormControl isRequired>
-                    <FormLabel color="white" fontFamily="'Lato', Helvetica, Arial, sans-serif">Peak week mileage (km)</FormLabel>
-                    <NumberInput min={0} max={400} width="100%">
-                      <NumberInputField
-                        value={peakMileage}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setPeakMileage(e.target.value)}
-                        placeholder="80"
                         bg="white"
                         color="red.700"
                         borderColor="red.300"
@@ -1015,7 +1014,6 @@ const MarathonCalculator = () => {
               <>
                 <RaceDayBreakfastSection />
                 <Divider my={6} borderColor="gray.200" />
-                {/* Gel strategy section now also Fjalla One/Lato */}
                 <Box width="100%" color="white">
                   <Alert 
                     status="success" 
@@ -1027,7 +1025,13 @@ const MarathonCalculator = () => {
                   >
                     <AlertIcon color="white" />
                     <span style={{ color: 'white' }}>
-                      You will need {result.totalGels} gels in total ({result.regularGels} regular {brand} {brand === 'Maurten' ? 'GEL 100' : 'PowerGel Original'} and {result.caffeineGels} {brand} {brand === 'Maurten' ? 'CAF 100' : 'PowerGel Hydro Caffeine'})
+                      {specialType === 'white-monster' ? (
+                        `Hey ${name}, you'll need ${result.totalGels} White Monsters in total`
+                      ) : specialType === 'gin' ? (
+                        `Hey ${name}, you'll need ${result.totalGels} bottles of Gin in total (${result.regularGels} Hendrick's and ${result.caffeineGels} Tanqueray)`
+                      ) : (
+                        `You will need ${result.totalGels} gels in total (${result.regularGels} regular ${brand} ${brand === 'Maurten' ? 'GEL 100' : 'PowerGel Original'} and ${result.caffeineGels} ${brand} ${brand === 'Maurten' ? 'CAF 100' : 'PowerGel Hydro Caffeine'})`
+                      )}
                     </span>
                   </Alert>
                   <Text fontSize="lg" mb={2} color="white">
@@ -1035,18 +1039,26 @@ const MarathonCalculator = () => {
                   </Text>
                   <Divider my={4} borderColor="gray.200" />
                   <Text fontSize="lg" fontWeight="bold" mb={2} color="white" fontFamily="Futura, Helvetica, Arial, sans-serif">
-                    Gel Timeline:
+                    {specialType === 'white-monster' ? 'White Monster Timeline:' : specialType === 'gin' ? 'Gin Timeline:' : 'Gel Timeline:'}
                   </Text>
                   <Stack spacing={2}>
-                    {result.timeline.map((time, index) => (
-                      <Text 
-                        key={index} 
-                        color="white" 
-                        fontFamily="'Lato', Helvetica, Arial, sans-serif"
-                      >
-                        {time}
-                      </Text>
-                    ))}
+                    {result.timeline.map((time, index) => {
+                      const [timeStr, action] = time.split(' - ');
+                      const newAction = specialType === 'white-monster' 
+                        ? `Drink White Monster #${index + 1}`
+                        : specialType === 'gin'
+                        ? `Drink ${index < result.regularGels ? 'Hendrick\'s' : 'Tanqueray'} Gin #${index + 1}`
+                        : action;
+                      return (
+                        <Text 
+                          key={index} 
+                          color="white" 
+                          fontFamily="'Lato', Helvetica, Arial, sans-serif"
+                        >
+                          {`${timeStr} - ${newAction}`}
+                        </Text>
+                      );
+                    })}
                   </Stack>
                 </Box>
                 {/* Coffee recommendations in Lato */}
