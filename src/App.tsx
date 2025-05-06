@@ -1,4 +1,4 @@
-import { ChakraProvider, Heading, Stack, Text, extendTheme, Image, Box, Flex } from '@chakra-ui/react'
+import { ChakraProvider, Heading, Stack, extendTheme, Image, Box, Flex } from '@chakra-ui/react'
 import MarathonCalculator from './components/MarathonCalculator'
 
 // Create a custom theme with typewriter font

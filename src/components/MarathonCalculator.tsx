@@ -458,7 +458,7 @@ const MarathonCalculator = () => {
                 Coffee Recommendations in Copenhagen
               </Text>
               <List spacing={2}>
-                {coffeeShops.slice(0, coffeeLove).map((shop, idx) => (
+                {coffeeShops.slice(0, coffeeLove).map((shop) => (
                   <ListItem key={shop}>
                     <ListIcon as={CheckCircleIcon} color="red.500" />
                     {shop}
